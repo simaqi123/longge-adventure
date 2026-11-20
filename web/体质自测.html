@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>体质倾向自测</title>
+<style>
+:root{
+  --bg:#f7f6f2; --card:#ffffff; --ink:#2f2c28; --ink-soft:#6b6560;
+  --line:#e4e0d8; --accent:#7a8f6a; --accent-soft:#eef2e9;
+  --accent2:#9a7b4f; --accent2-soft:#f6efe2; --warn:#8a5a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.75;
+  padding:24px 16px 64px; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px;margin:0 auto}
+header.top{text-align:center;padding:28px 20px 24px;margin-bottom:22px}
+header.top h1{font-size:1.55rem;font-weight:600;letter-spacing:.5px;margin-bottom:8px}
+header.top .sub{color:var(--ink-soft);font-size:.92rem}
+.badge{
+  display:inline-block;margin-top:14px;padding:4px 13px;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent);font-size:.78rem;letter-spacing:.4px
+}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:26px 24px;margin-bottom:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.03)
+}
+.card h2{font-size:1.1rem;font-weight:600;margin-bottom:6px}
+.card .hint{color:var(--ink-soft);font-size:.86rem;margin-bottom:20px}
+.q{padding:18px 0;border-bottom:1px dashed var(--line)}
+.q:last-child{border-bottom:none}
+.q .stem{font-size:.98rem;margin-bottom:12px}
+.q .opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{
+  flex:1 1 auto;min-width:74px;text-align:center;padding:9px 8px;
+  border:1px solid var(--line);border-radius:9px;background:#fbfaf7;
+  font-size:.86rem;color:var(--ink-soft);cursor:pointer;
+  transition:all .16s ease;user-select:none
+}
+.opt:hover{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.progress{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin:16px 0 22px}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+.bar-top{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--ink-soft);margin-bottom:6px;gap:10px}
+.bar-top #step-desc{flex:1;text-align:center;color:#9a948c;font-size:.78rem}
+.btn{
+  display:block;width:100%;padding:13px;border:none;border-radius:10px;
+  background:var(--accent);color:#fff;font-size:.97rem;font-weight:500;
+  cursor:pointer;font-family:inherit;transition:opacity .16s
+}
+.btn:hover{opacity:.88}
+.btn:disabled{background:#cfcbc3;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);margin-top:10px}
+.hidden{display:none}
+.result-head{text-align:center;padding:8px 0 20px}
+.result-head .emoji{font-size:2.4rem;margin-bottom:8px}
+.result-head h2{font-size:1.4rem;font-weight:600;margin-bottom:6px}
+.result-head .tagline{color:var(--accent);font-size:.95rem}
+.result-desc{
+  background:var(--accent-soft);border-left:3px solid var(--accent);
+  padding:14px 16px;border-radius:0 8px 8px 0;font-size:.92rem;margin-bottom:20px
+}
+.sec-title{font-size:.95rem;font-weight:600;margin:22px 0 12px;color:var(--ink)}
+.advice{display:flex;flex-direction:column;gap:10px}
+.advice li{
+  list-style:none;background:#fbfaf7;border:1px solid var(--line);
+  border-radius:10px;padding:12px 14px;font-size:.9rem;position:relative;padding-left:34px
+}
+.advice li::before{content:"·";position:absolute;left:15px;color:var(--accent);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:6px 13px;border-radius:999px;background:var(--accent2-soft);
+  color:var(--accent2);font-size:.84rem;border:1px solid #e8ddc8
+}
+.bar-item{margin-bottom:14px}
+.bar-item .bl{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:5px}
+.bar-item .bt{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar-item .bt i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease}
+.bar-item.alt .bt i{background:var(--accent2)}
+.disclaim{
+  margin-top:22px;padding:16px 18px;background:#fbfaf7;border:1px solid var(--line);
+  border-radius:10px;font-size:.82rem;color:var(--ink-soft);line-height:1.8
+}
+.disclaim strong{color:var(--ink);font-weight:600}
+.src{margin-top:14px;font-size:.8rem;color:var(--ink-soft)}
+.foot{text-align:center;margin-top:26px;font-size:.78rem;color:var(--ink-soft);line-height:1.9}
+@media (max-width:520px){
+  body{padding:16px 12px 48px}
+  .card{padding:20px 16px}
+  .opt{min-width:0;flex:1 1 44%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══ 答题页 ══ -->
+  <div id="quiz-page">
+    <header class="top">
+      <h1>体质倾向自测</h1>
+      <div class="sub">36 题 · 约 3 分钟 · 依据《黄帝内经》九种体质分型</div>
+      <div class="badge">养生参考 · 不构成诊断</div>
+    </header>
+
+    <div class="card">
+      <div class="bar-top">
+        <span id="step-title">第 1 题</span>
+        <span id="step-desc">请选择最接近你日常状态的一项</span>
+        <span id="bar-txt">已完成 0 / 36</span>
+      </div>
+      <div class="progress"><i id="bar" style="width:0%"></i></div>
+      <div id="q-box"></div>
+      <button class="btn" id="btn-next" disabled>下一题</button>
+      <button class="btn ghost" id="btn-restart-quiz" style="display:none"></button>
+    </div>
+
+    <div class="card">
+      <h2>作答说明</h2>
+      <div class="hint" style="margin-bottom:0">
+        题目问的是日常状态与偏好，不涉及疾病。请按最近一两个月的真实感受作答，
+        不必纠结"应该怎样"；没有对错，凭第一反应选即可。
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 结果页 ══ -->
+  <div id="result-page" class="hidden">
+    <header class="top">
+      <h1>你的体质倾向</h1>
+      <div class="sub">以下是根据你的选择得出的倾向分布</div>
+    </header>
+    <div class="card">
+      <div id="result-box"></div>
+    </div>
+    <div class="card">
+      <h2>内容溯源</h2>
+      <div class="hint">本页调养建议取自《养生知识表》中的体质条目，逐条可溯：</div>
+      <div class="src"><ul><li>W-001　气虚质的日常调养　<span style="color:#8a8378">气虚质</span></li><li>W-135　正虚时不宜过耗的取向　<span style="color:#8a8378">气虚质</span></li><li>W-191　易倦倾向的作息取向　<span style="color:#8a8378">气虚质</span></li><li>W-006　阳虚质的起居调养　<span style="color:#8a8378">阳虚质</span></li><li>W-138　阳气偏衰时的作息取向　<span style="color:#8a8378">阳虚质</span></li><li>W-141　腰肾偏弱倾向的起居取向　<span style="color:#8a8378">阳虚质,气虚质</span></li><li>W-005　阴虚质的作息调养　<span style="color:#8a8378">阴虚质</span></li><li>W-150　秋燥时节的润养取向　<span style="color:#8a8378">阴虚质,肺燥质</span></li><li>W-139　肝郁与阴虚并见的情绪取向　<span style="color:#8a8378">气郁质,阴虚质</span></li><li>W-003　痰湿质的饮食调养　<span style="color:#8a8378">痰湿质</span></li><li>W-134　痰浊偏盛时的饮食取向　<span style="color:#8a8378">痰湿质</span></li><li>W-147　排便不畅倾向的纤维取向　<span style="color:#8a8378">痰湿质,气郁质</span></li><li>W-004　湿热质的起居调养　<span style="color:#8a8378">湿热质</span></li><li>W-132　湿热偏盛时的口味取向　<span style="color:#8a8378">湿热质</span></li><li>W-137　湿热痹阻倾向的起居取向　<span style="color:#8a8378">湿热质,痰湿质</span></li><li>W-007　血瘀质的运动调养　<span style="color:#8a8378">血瘀质</span></li><li>W-133　气滞血瘀倾向的运动取向　<span style="color:#8a8378">血瘀质</span></li><li>W-142　气血不足倾向的进补取向　<span style="color:#8a8378">气虚质,血瘀质</span></li><li>W-002　气郁质的情绪调养　<span style="color:#8a8378">气郁质</span></li><li>W-136　肝郁气滞倾向的情志取向　<span style="color:#8a8378">气郁质</span></li><li>W-144　腹部胀满倾向的餐时取向　<span style="color:#8a8378">气郁质,痰湿质</span></li><li>W-008　气滞质的疏解调养　<span style="color:#8a8378">气滞质</span></li><li>W-194　口味与情绪的分开管理　<span style="color:#8a8378">气郁质,湿热质</span></li><li>W-152　春生发散的作息取向　<span style="color:#8a8378">气郁质,肝郁倾向</span></li></ul></div>
+    </div>
+    <button class="btn ghost" id="btn-restart">重新测一次</button>
+    <div class="foot">
+      本工具仅作养生参考，不替代医疗诊断。<br>
+      身体不适请至医疗机构就诊。
+    </div>
+  </div>
+
+</div>
+<script>
+const QUESTIONS = [{'stem': '比起同年龄的人，我更容易觉得累、没劲', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气虚质', 'w': 3}, {'stem': '我不太耐累，连续忙半天就需要缓一缓', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气虚质', 'w': 3}, {'stem': '我的饭量偏小，吃一点就饱', 'opts': ['从来没有', '偶尔', '一般', '经常', '总是'], 'cons': '气虚质', 'w': 1}, {'stem': '比起运动，我更习惯安静地待着', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '气虚质', 'w': 1}, {'stem': '我比别人更怕冷，手脚常年偏凉', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '阳虚质', 'w': 3}, {'stem': '我偏爱热饮热食，冷的东西入口不太舒服', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '阳虚质', 'w': 2}, {'stem': '冬天对我来说格外难熬', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '阳虚质', 'w': 2}, {'stem': '我的性格偏安静内向，不太爱凑热闹', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '阳虚质', 'w': 1}, {'stem': '我容易觉得口干、咽干，喝水频率偏高', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '阴虚质', 'w': 3}, {'stem': '我的手脚心偏热，夜里常觉得身上发热', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '阴虚质', 'w': 2}, {'stem': '我的皮肤偏干，容易起皮', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '阴虚质', 'w': 2}, {'stem': '我偏爱清淡，不太喜欢重油重味的菜', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '阴虚质', 'w': 1}, {'stem': '我的体型偏胖，腹部尤其明显', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '痰湿质', 'w': 3}, {'stem': '我容易出汗，出完人显得发沉', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '痰湿质', 'w': 2}, {'stem': '我偏爱甜食和油腻的食物', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '痰湿质', 'w': 2}, {'stem': '我的脸上容易出油，头发也容易出油', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '痰湿质', 'w': 2}, {'stem': '我身上容易出汗，而且汗多时觉得黏', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '湿热质', 'w': 3}, {'stem': '我容易觉得口苦、口黏，早起口腔不太清爽', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '湿热质', 'w': 3}, {'stem': '我偏爱辛辣、油炸这类重口味', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '湿热质', 'w': 2}, {'stem': '我容易着急上火，睡一觉起来仍不解乏', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '湿热质', 'w': 2}, {'stem': '我容易出现面部色斑或皮肤暗沉', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '血瘀质', 'w': 3}, {'stem': '我的嘴唇颜色偏暗，或面部容易出现瘀点', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '血瘀质', 'w': 3}, {'stem': '我的记忆不太集中，容易走神', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '血瘀质', 'w': 1}, {'stem': '我容易情绪低落，对事情提不起兴趣', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '血瘀质', 'w': 1}, {'stem': '我容易情绪紧张、心里发慌', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气郁质', 'w': 3}, {'stem': '我经常担心还没发生的事', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气郁质', 'w': 3}, {'stem': '我不喜欢社交场合，压力大时想一个人待着', 'opts': ['完全没有', '偶尔', '一般', '经常', '总是'], 'cons': '气郁质', 'w': 2}, {'stem': '我入睡偏慢，脑子里事情多', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气郁质', 'w': 2}, {'stem': '我容易出现胸胁或腹部的胀满感', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气滞质', 'w': 3}, {'stem': '我的情绪像堵着，需要出口才能松开', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气滞质', 'w': 3}, {'stem': '我经常叹气', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气滞质', 'w': 2}, {'stem': '换环境或换计划时，我很难适应', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '气滞质', 'w': 2}, {'stem': '我的鼻腔或咽喉容易发干、敏感', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '肺燥质', 'w': 3}, {'stem': '秋冬或干燥季节我特别不舒服', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '肺燥质', 'w': 3}, {'stem': '我的皮肤在干燥时容易发痒、脱屑', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '肺燥质', 'w': 2}, {'stem': '我喝水偏少，口干了才想起来喝', 'opts': ['几乎没有', '偶尔', '一般', '经常', '总是'], 'cons': '肺燥质', 'w': 1}];
+const RESULTS = {'气虚质': {'tagline': '气力偏弱，宜少劳多养', 'desc': '日常容易觉得没劲、耐累度偏低，饮食上宜少而精，作息宜规律。', 'advice': [{'id': 'W-001', 'text': '气虚倾向者宜少劳多养，三餐规律，忌过饱与久坐耗神；食量宜少而精'}, {'id': 'W-135', 'text': '正气偏弱时不宜过度劳作与熬夜，宜适度活动；食量宜少而精，不宜强求量大'}, {'id': 'W-191', 'text': '容易疲倦者宜把休息排进日程而非等累到不行才停，午间小睡二十分钟即可'}], 'projects': ['温热灸服务', '养生咨询服务']}, '阳虚质': {'tagline': '阳气偏弱，畏寒喜暖', 'desc': '手足偏凉、偏爱温热饮食是这个倾向的常见表现，起居上宜注意保暖。', 'advice': [{'id': 'W-006', 'text': '阳虚倾向者宜注意保暖，饮食以温热为要，忌生冷冰饮；冬季尤宜护住腰腹与足部'}, {'id': 'W-138', 'text': '阳气偏衰倾向者宜注意腰腹保暖；作息宜早，起居有常，忌通宵与过度耗神'}, {'id': 'W-141', 'text': '腰膝易酸者宜避免久坐久站，日常宜做舒缓的腰背伸展；夜间注意保暖'}], 'projects': ['温热灸服务', '养生咨询服务']}, '阴虚质': {'tagline': '阴液偏亏，宜温润平和', 'desc': '口干、手足心热、皮肤偏干是这个倾向的常见表现，作息上宜有定时。', 'advice': [{'id': 'W-005', 'text': '阴虚倾向者宜作息定时，睡前不饮浓茶与酒；居室保持适度湿度，晨起宜温水'}, {'id': 'W-150', 'text': '秋燥时令宜少量多次饮水，饮食以润为度，宜百合、莲子、梨、百合莲子粥一类'}, {'id': 'W-139', 'text': '情绪起伏较大且夜间难眠者，宜把入睡时间前移；午后安排短时休息，忌情绪过激'}], 'projects': ['养生咨询服务']}, '痰湿质': {'tagline': '湿偏盛，宜少甜少腻', 'desc': '体型偏胖、容易出汗发沉、爱甜腻是这个倾向的常见表现。', 'advice': [{'id': 'W-003', 'text': '痰湿倾向者宜少甜少腻，主食粗细搭配；饭后宜慢行，居室保持通风干爽'}, {'id': 'W-134', 'text': '痰浊偏盛时宜少甜少腻，主食宜粗细搭配，忌连续大量进食；饭后宜慢行'}, {'id': 'W-147', 'text': '排便不畅者宜增加蔬菜与全谷比例，晨起饮水一杯；忌久坐少动'}], 'projects': ['全身推拿服务', '养生咨询服务']}, '湿热质': {'tagline': '湿热偏盛，宜清淡', 'desc': '出汗多而黏、口苦口黏、偏爱重口味是这个倾向的常见表现。', 'advice': [{'id': 'W-004', 'text': '湿热倾向者宜饮食清淡，蔬菜宜多量；起居宜早睡，居室保持通风'}, {'id': 'W-132', 'text': '湿热偏盛时口味宜清淡，蔬菜宜多量，忌煎炸厚味；起居宜早睡，忌熬夜'}, {'id': 'W-137', 'text': '湿热偏阻者宜避潮湿环境，居室保持通风干爽；饮食忌久坐不动，宜规律起身'}], 'projects': ['养生咨询服务']}, '血瘀质': {'tagline': '血行不畅，宜多舒展', 'desc': '面色暗沉、易斑、记忆不集中是这个倾向的常见表现。', 'advice': [{'id': 'W-007', 'text': '血瘀倾向者宜多做舒展类运动，以手足四肢动作为主，避免久坐不动'}, {'id': 'W-133', 'text': '气滞血瘀倾向者宜多做舒展类运动，以手足四肢动作为主，避免久坐不动'}, {'id': 'W-142', 'text': '气血偏弱者宜从平补食材起步，如山药、大枣、桂圆、小米，不宜骤然重补'}], 'projects': ['全身推拿服务', '养生咨询服务']}, '气郁质': {'tagline': '气机郁滞，宜疏解', 'desc': '容易紧张、多思、入睡偏慢是这个倾向的常见表现。', 'advice': [{'id': 'W-002', 'text': '气郁倾向者宜把情绪与作息分开，睡前不反复回想烦心事；日常安排有节律的户外活动'}, {'id': 'W-136', 'text': '情绪抑郁或易怒者，宜在午前安排有节律的活动，出汗后及时更衣，忌情绪憋闷过夜'}, {'id': 'W-144', 'text': '餐后易饱者宜细嚼慢咽，饭后不宜立即坐下；晚餐宜早且清淡'}], 'projects': ['全身推拿服务', '养生咨询服务']}, '气滞质': {'tagline': '疏泄不利，宜条达', 'desc': '胀满感、情绪像堵着、爱叹气是这个倾向的常见表现。', 'advice': [{'id': 'W-008', 'text': '气滞倾向者宜疏解条达，日常安排有节律的伸展活动；情绪宜有出口，忌长期憋闷'}, {'id': 'W-194', 'text': '情绪起伏大时先把注意力转到手上的事，饮食照旧走清淡路线，两件事分开处理'}, {'id': 'W-152', 'text': '春令宜早睡早起，多接触自然；情绪宜舒展，忌久坐郁结'}], 'projects': ['全身推拿服务', '养生咨询服务']}, '肺燥质': {'tagline': '津液偏燥，宜润养', 'desc': '鼻腔咽喉发干、干燥季节不适是这个倾向的常见表现。', 'advice': [{'id': 'W-150', 'text': '秋燥时令宜少量多次饮水，饮食以润为度，宜百合、莲子、梨、百合莲子粥一类'}, {'id': 'W-005', 'text': '阴虚倾向者宜作息定时，睡前不饮浓茶与酒；居室保持适度湿度，晨起宜温水'}, {'id': 'W-152', 'text': '春令宜早睡早起，多接触自然；情绪宜舒展，忌久坐郁结'}], 'projects': ['养生咨询服务']}};
+const CONS = ['气虚质', '阳虚质', '阴虚质', '痰湿质', '湿热质', '血瘀质', '气郁质', '气滞质', '肺燥质'];
+const SCALE = [-3,-1,0,1,3];
+
+let answers = new Array(QUESTIONS.length).fill(null);
+let current = 0;
+
+const el = id => document.getElementById(id);
+const stepTitle = el('step-title');
+const stepDesc = el('step-desc');
+const qBox = el('q-box');
+const bar = el('bar');
+const barTxt = el('bar-txt');
+const btnNext = el('btn-next');
+
+function render(){
+  const q = QUESTIONS[current];
+  stepTitle.textContent = '第 ' + (current+1) + ' 题 / 共 ' + QUESTIONS.length + ' 题';
+  stepDesc.textContent = '请选择最接近你日常状态的一项';
+  const done = answers.filter(a=>a!==null).length;
+  const pct = Math.round(done / QUESTIONS.length * 100);
+  bar.style.width = pct + '%';
+  barTxt.textContent = '已完成 ' + done + ' / ' + QUESTIONS.length;
+
+  let html = '<div class="q"><div class="stem">' + q.stem + '</div><div class="opts">';
+  q.opts.forEach((o,i)=>{
+    const sel = answers[current]===i ? ' sel' : '';
+    html += '<div class="opt'+sel+'" data-i="'+i+'">'+o+'</div>';
+  });
+  html += '</div></div>';
+  qBox.innerHTML = html;
+  qBox.querySelectorAll('.opt').forEach(o=>{
+    o.addEventListener('click', ()=>{
+      answers[current] = parseInt(o.dataset.i);
+      render();
+    });
+  });
+  btnNext.textContent = current === QUESTIONS.length-1 ? '查看结果' : '下一题';
+  btnNext.disabled = answers[current]===null;
+  if(answers[current]!==null && current===QUESTIONS.length-1){ /* 允许直接查看 */ }
+}
+
+function score(){
+  // 各体质独立累加：只统计「归属该体质的题」上的得分。
+  // 不做跨体质扣分——否则只要多数题选中立，其余体质都会被压成 0%，
+  // 分布条失去分辨力。跨体质的相对关系由「该体质在其 4 题上的净得分」体现。
+  const sc = {}; CONS.forEach(c=>sc[c]=0);
+  QUESTIONS.forEach((q,idx)=>{
+    const v = SCALE[answers[idx]];
+    sc[q.cons] += v * q.w;
+  });
+  return sc;
+}
+
+function showResult(){
+  el('quiz-page').classList.add('hidden');
+  el('result-page').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  const sc = score();
+  const ranked = CONS.map(c=>({c:c,s:sc[c]})).sort((a,b)=>b.s-a.s);
+  const top = ranked[0];
+  const t = RESULTS[top.c];
+  // 归一化：以最高分为 100% 基准，负分体质显示为 0%，
+  // 同分体质显示同一百分比（只表达相对强弱，不作绝对解读）
+  const maxS = Math.max(top.s, 1);
+  const pctOf = s => s <= 0 ? 0 : Math.max(0, Math.min(100, Math.round(s / maxS * 100)));
+  // 平局判定：最高分为 0 或与次高分差值过小 → 判为「九种体质分布均衡」
+  const flat = top.s <= 0 || (top.s - ranked[1].s) < 4;
+
+  let html = '<div class="result-head">'
+    + '<div class="emoji">🌿</div>'
+    + (flat
+        ? '<h2>九种体质分布均衡</h2><div class="tagline">你的作答在各体质上差异不大</div>'
+        : '<h2>' + top.c + '</h2><div class="tagline">' + t.tagline + '</div>')
+    + '</div>'
+    + '<div class="result-desc">'
+    + (flat
+        ? '你的选择没有明显偏向某一类体质，说明日常状态比较均衡。这类情况下，更实用的做法是按当下季节与体感来调整：换季时留意衣被增减，饮食随口味与食欲变化，不必刻意固定在某一种体质上。'
+        : t.desc)
+    + '</div>';
+
+  if (flat) {
+    html += '<div class="sec-title">通用的日常调养方向</div><ul class="advice">'
+      + '<li>三餐定时，忌过饱过饥；每餐七分饱，饭后百步走</li>'
+      + '<li>作息宜早，起居有常，忌通宵与过度耗神</li>'
+      + '<li>起居随气温增减衣被，居室保持通风干爽</li>'
+      + '</ul>';
+  } else {
+
+  html += '<div class="sec-title">日常调养方向</div><ul class="advice">';
+  t.advice.forEach(a=>{ html += '<li>'+a.text+'</li>'; });
+  html += '</ul>';
+
+  html += '<div class="sec-title">可配合的养生项目</div><div class="chips">';
+  t.projects.forEach(p=>{ html += '<span class="chip">'+p+'</span>'; });
+  html += '</div>';
+  }
+
+  html += '<div class="sec-title">九种体质倾向分布</div>';
+  ranked.forEach((r,i)=>{
+    const w = pctOf(r.s);
+    const cls = (i===0?'':' alt');
+    html += '<div class="bar-item'+cls+'"><div class="bl"><span>'+r.c+'</span><span>'+w+'%</span></div>'
+      + '<div class="bt"><i style="width:'+w+'%"></i></div></div>';
+  });
+
+  html += '<div class="disclaim"><strong>说明</strong><br>'
+    + '本结果为体质倾向的自我观察参考，不是疾病判断，也不构成诊断。'
+    + '评分只反映你此刻的选择倾向，同一个人在不同季节、不同阶段的结果可能不同。<br>'
+    + '如需了解具体健康状况，请前往医疗机构由医师面诊。'
+    + '</div>';
+
+  el('result-box').innerHTML = html;
+}
+
+btnNext.addEventListener('click', ()=>{
+  if(answers[current]===null) return;
+  if(current === QUESTIONS.length-1){ showResult(); return; }
+  current++; render();
+});
+
+el('btn-restart').addEventListener('click', ()=>{
+  answers = new Array(QUESTIONS.length).fill(null);
+  current = 0;
+  el('result-page').classList.add('hidden');
+  el('quiz-page').classList.remove('hidden');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

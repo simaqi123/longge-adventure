@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>养生一人公司生存地图</title>
+<style>
+:root{
+  --bg:#0d1117; --bg2:#161b22; --panel:#1c2330; --panel2:#232c3b;
+  --line:#2b3547; --line2:#3a475c;
+  --ink:#e6edf3; --ink-soft:#a8b6c8; --ink-dim:#75839a;
+  --gold:#d4a24e; --orange:#e08a3c; --blue:#4b8fd4; --green:#4aa870;
+  --red:#d0574f; --yellow:#d4b04a;
+  --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--blue);text-decoration:none}
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px 64px}
+
+/* ── 顶部 ── */
+header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(13,17,23,.94); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.hd{max-width:1440px;margin:0 auto;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{font-size:19px;font-weight:600;letter-spacing:.5px}
+.brand .sub{font-size:12px;color:var(--ink-dim)}
+nav{display:flex;gap:2px}
+nav button{
+  background:none;border:none;color:var(--ink-dim);cursor:pointer;
+  font-size:13px;padding:8px 16px;border-radius:6px;font-family:inherit;
+  transition:.15s;
+}
+nav button:hover{color:var(--ink);background:var(--panel)}
+nav button.on{color:var(--gold);background:var(--panel2)}
+
+/* ── 布局 ── */
+.main{display:grid;grid-template-columns:270px 1fr;gap:20px;margin-top:20px}
+@media(max-width:960px){.main{grid-template-columns:1fr}}
+
+/* ── 侧栏 ── */
+.side{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card h3{font-size:12px;font-weight:600;color:var(--ink-dim);
+  letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase}
+
+.legend-item{display:flex;gap:9px;align-items:flex-start;padding:7px 0;cursor:default}
+.dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.legend-item b{display:block;font-size:13px;font-weight:600}
+.legend-item span{font-size:11.5px;color:var(--ink-dim);line-height:1.45}
+.legend-item em{font-style:normal;color:var(--ink-soft);font-size:11px}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:10px}
+.stat .n{font-size:19px;font-weight:600;color:var(--gold);line-height:1.2}
+.stat .n small{font-size:12px;color:var(--ink-dim);font-weight:400}
+.stat .l{font-size:11px;color:var(--ink-dim);margin-top:3px}
+
+.btn{
+  display:block;width:100%;text-align:center;padding:11px;border-radius:8px;
+  font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;
+  font-family:inherit;transition:.15s;
+}
+.btn.primary{background:var(--red);color:#fff}
+.btn.primary:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent;border-color:var(--line2);color:var(--ink-soft);margin-top:8px}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+.founder{font-size:11.5px;color:var(--ink-dim);line-height:1.6}
+.founder b{color:var(--ink-soft);font-weight:600}
+
+/* ── 面板 ── */
+.panel{display:none}
+.panel.on{display:block}
+.panel-hd{margin-bottom:14px}
+.panel-hd h2{font-size:20px;font-weight:600;margin-bottom:5px}
+.panel-hd p{font-size:13px;color:var(--ink-soft);max-width:820px}
+
+.legend-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  padding:11px 16px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);margin-bottom:14px;font-size:12px;color:var(--ink-soft)}
+.legend-bar .li{display:flex;align-items:center;gap:6px}
+
+/* ── treemap ── */
+.tm-wrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px;position:relative}
+#treemap{width:100%;display:block}
+.tm-cell{cursor:pointer;transition:opacity .12s}
+.tm-cell:hover{opacity:.82}
+.tm-cell rect{stroke:var(--bg);stroke-width:2}
+.tm-name{font-size:14px;font-weight:600;fill:#12181f;pointer-events:none}
+.tm-sub{font-size:11px;fill:#12181f;opacity:.72;pointer-events:none}
+.tm-rate{font-size:19px;font-weight:700;fill:#12181f;pointer-events:none}
+.tm-rate small{font-size:11px;font-weight:600}
+.tm-area{font-size:10.5px;fill:#12181f;opacity:.68;pointer-events:none}
+.tm-quad{font-size:10px;fill:#12181f;opacity:.5;pointer-events:none;font-weight:600}
+.tm-bar-bg{fill:rgba(18,24,31,.22);pointer-events:none}
+.tm-bar-fg{fill:#12181f;pointer-events:none}
+
+/* ── 详情抽屉 ── */
+.detail{
+  margin-top:14px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:20px;display:none
+}
+.detail.on{display:block}
+.detail-hd{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.detail-hd h3{font-size:17px;font-weight:600}
+.detail-hd .meta{font-size:12px;color:var(--ink-dim);margin-top:3px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
+  font-weight:600;margin-right:6px}
+.pill.g{background:rgba(74,168,112,.16);color:#5fc490;border:1px solid rgba(74,168,112,.3)}
+.pill.y{background:rgba(212,176,74,.16);color:#e0c264;border:1px solid rgba(212,176,74,.3)}
+.pill.o{background:rgba(224,138,60,.16);color:#e8a163;border:1px solid rgba(224,138,60,.3)}
+.pill.r{background:rgba(208,87,79,.16);color:#e0776f;border:1px solid rgba(208,87,79,.3)}
+
+.act-list{display:grid;gap:8px;margin-top:6px}
+.act{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;
+  background:var(--bg2);border:1px solid var(--line);border-radius:8px}
+.act .st{flex-shrink:0;width:62px;font-size:11px;font-weight:600;text-align:center;
+  padding:3px 0;border-radius:5px;margin-top:2px}
+.act .st.auto{background:rgba(74,168,112,.15);color:#5fc490}
+.act .st.semi{background:rgba(212,176,74,.15);color:#e0c264}
+.act .st.manual{background:rgba(208,87,79,.15);color:#e0776f}
+.act .nm{font-size:13px;font-weight:600;margin-bottom:2px}
+.act .ev{font-size:11.5px;color:var(--ink-dim);line-height:1.5}
+
+/* ── 表单 ── */
+.form{max-width:760px}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.field .hint{font-size:11.5px;color:var(--ink-dim);font-weight:400;margin-left:6px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.opt{background:var(--bg2);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;cursor:pointer;transition:.15s;font-size:13px}
+.opt:hover{border-color:var(--line2)}
+.opt.on{border-color:var(--gold);background:rgba(212,162,78,.09)}
+.opt .o-n{font-weight:600}
+.opt .o-s{font-size:11px;color:var(--ink-dim);margin-top:2px}
+.report{margin-top:18px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:22px;display:none}
+.report.on{display:block}
+.report h3{font-size:17px;margin-bottom:4px}
+.report .r-sub{font-size:12.5px;color:var(--ink-dim);margin-bottom:16px}
+.r-sec{margin-bottom:18px}
+.r-sec > h4{font-size:12px;color:var(--gold);letter-spacing:1px;margin-bottom:9px;
+  text-transform:uppercase}
+.r-sec ol,.r-sec ul{padding-left:20px}
+.r-sec li{font-size:13px;margin-bottom:7px;line-height:1.65}
+.r-sec li b{color:var(--ink)}
+.r-next{background:rgba(75,143,212,.08);border:1px solid rgba(75,143,212,.25);
+  border-left:3px solid var(--blue);border-radius:8px;padding:13px 15px;
+  font-size:13px;line-height:1.65}
+.warn{background:rgba(212,162,78,.07);border:1px solid rgba(212,162,78,.22);
+  border-radius:8px;padding:13px 15px;font-size:12.5px;color:var(--ink-soft);
+  line-height:1.7;margin-top:20px}
+
+/* ── 模型页 ── */
+.q-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}
+.q{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;border-top:3px solid}
+.q h4{font-size:15px;font-weight:600;margin-bottom:4px}
+.q .th{font-size:11px;color:var(--ink-dim);margin-bottom:9px}
+.q p{font-size:12.5px;color:var(--ink-soft);line-height:1.7}
+.q .cnt{font-size:11px;color:var(--ink-dim);margin-top:11px;padding-top:11px;
+  border-top:1px solid var(--line)}
+.flow{margin-top:26px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:22px}
+.flow h3{font-size:15px;margin-bottom:16px}
+.flow-step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.flow-n{width:26px;height:26px;border-radius:50%;background:var(--panel2);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;flex-shrink:0}
+.flow-t{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.flow-d{font-size:12.5px;color:var(--ink-soft);line-height:1.65}
+
+/* ── 案例页 ── */
+.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.case{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:18px;display:flex;flex-direction:column}
+.case .tag{font-size:11px;color:var(--blue);margin-bottom:7px;letter-spacing:.5px}
+.case h4{font-size:15px;font-weight:600;margin-bottom:8px}
+.case p{font-size:12.5px;color:var(--ink-soft);line-height:1.7;flex:1}
+.case .kv{display:flex;gap:16px;margin-top:13px;padding-top:13px;
+  border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-dim)}
+.case .kv b{color:var(--green);font-weight:600}
+
+/* ── 工序链 ── */
+.ch-list{display:flex;flex-direction:column;gap:10px}
+.ch-step{background:var(--bg2);border:1px solid var(--line);border-radius:8px;
+  padding:13px 15px;position:relative}
+.ch-step.bn{border-color:rgba(208,87,79,.5);background:rgba(208,87,79,.06)}
+.ch-top{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.ch-i{width:22px;height:22px;border-radius:50%;background:var(--panel2);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;flex-shrink:0}
+.ch-nm{font-size:13.5px;font-weight:600;flex:1}
+.ch-bn{background:rgba(208,87,79,.18);color:#e88b83;font-size:10.5px;
+  padding:2px 7px;border-radius:4px;letter-spacing:.5px}
+.ch-min{font-size:12px;color:var(--blue);font-weight:600}
+.ch-bar{height:5px;background:var(--panel2);border-radius:3px;overflow:hidden;
+  margin-bottom:8px}
+.ch-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--gold))}
+.ch-step.bn .ch-bar i{background:linear-gradient(90deg,var(--orange),var(--red))}
+.ch-meta{display:flex;align-items:center;gap:10px}
+.ch-share{font-size:11px;color:var(--ink-dim)}
+.ch-dep{font-size:11px;color:var(--ink-dim);margin-top:7px}
+.ch-ev{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.6}
+.ch-note{font-size:11.5px;color:var(--ink-dim);line-height:1.7;margin-top:11px}
+
+/* ── 单位经济 ── */
+.ue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.ue{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:13px}
+.ue-n{font-size:21px;font-weight:700;color:var(--gold);line-height:1.2}
+.ue-n small{font-size:11px;color:var(--ink-dim);margin-left:2px;font-weight:400}
+.ue-l{font-size:11px;color:var(--ink-dim);margin-top:5px}
+
+/* ── 经营推演 ── */
+.sim-ctrl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;margin-bottom:18px}
+.sim-c{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.sim-c-l{font-size:12px;color:var(--ink-soft);margin-bottom:9px;display:flex;
+  justify-content:space-between;align-items:center}
+.sim-c-l b{color:var(--gold);font-size:13px}
+.sim-c input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer}
+.sim-c .hint{font-size:10.5px;color:var(--ink-dim);margin-top:7px;line-height:1.5}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px}
+.sim-kpi{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:16px}
+.k-n{font-size:26px;font-weight:700;color:var(--gold);line-height:1.15}
+.k-n small{font-size:11px;color:var(--ink-dim);margin-left:3px;font-weight:400}
+.k-l{font-size:12px;color:var(--ink-soft);margin-top:6px}
+.k-d{font-size:11px;color:var(--ink-dim);margin-top:5px}
+.cadence{margin-top:13px;padding:11px 14px;border-radius:7px;font-size:12.5px;
+  line-height:1.6;border:1px solid var(--line)}
+.cadence.hl-good{background:rgba(74,168,112,.09);border-color:rgba(74,168,112,.3);color:#7cc49a}
+.cadence.hl-warn{background:rgba(212,162,78,.09);border-color:rgba(212,162,78,.3);color:#dcb878}
+.cadence.hl-bad{background:rgba(208,87,79,.09);border-color:rgba(208,87,79,.3);color:#e88b83}
+.sim-bars{display:flex;flex-direction:column;gap:8px}
+.sim-bar-row{display:grid;grid-template-columns:minmax(110px,1.5fr) 2fr 56px 42px;
+  gap:10px;align-items:center}
+.sim-bar-nm{font-size:12px;color:var(--ink-soft);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.sim-bar{height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.sim-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--gold))}
+.sim-bar-v{font-size:11.5px;color:var(--ink);text-align:right}
+.sim-bar-p{font-size:11px;color:var(--ink-dim);text-align:right}
+.sim-health{list-style:none;padding:0}
+.sim-health li{font-size:12.5px;padding:9px 13px;border-radius:7px;margin-bottom:7px;
+  line-height:1.6;border:1px solid var(--line)}
+.sim-health li.hl-good{background:rgba(74,168,112,.08);border-color:rgba(74,168,112,.26)}
+.sim-health li.hl-warn{background:rgba(212,162,78,.08);border-color:rgba(212,162,78,.26)}
+.sim-health li.hl-bad{background:rgba(208,87,79,.08);border-color:rgba(208,87,79,.26)}
+.sim-health li.hl-info{background:var(--bg2)}
+
+/* ── 路线图 ── */
+.rm{position:relative;padding-left:30px}
+.rm::before{content:'';position:absolute;left:9px;top:8px;bottom:8px;width:2px;
+  background:var(--line)}
+.rm-item{position:relative;margin-bottom:22px}
+.rm-item::before{content:'';position:absolute;left:-26px;top:5px;width:12px;height:12px;
+  border-radius:50%;background:var(--gold);border:3px solid var(--bg)}
+.rm-hd{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;margin-bottom:6px}
+.rm-ph{font-size:11px;color:var(--gold);letter-spacing:1px}
+.rm-ti{font-size:15px;font-weight:600}
+.rm-w{font-size:11.5px;color:var(--ink-dim)}
+.rm-goal{font-size:12.5px;color:var(--ink-soft);line-height:1.7;margin-bottom:11px}
+.rm-tasks{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
+.rm-task{display:flex;align-items:center;gap:10px;font-size:12.5px;
+  background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:9px 13px}
+.rm-task .mark{width:16px;height:16px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.rm-task.done .mark{background:rgba(74,168,112,.2);color:#7cc49a}
+.rm-task.todo .mark{background:rgba(212,162,78,.16);color:#dcb878}
+.rm-task .tt{flex:1;color:var(--ink-soft)}
+.rm-task .ts{font-size:10.5px;color:var(--ink-dim);font-family:ui-monospace,monospace}
+.rm-gate{font-size:12px;padding:10px 14px;border-radius:7px;line-height:1.6;
+  background:rgba(75,143,212,.08);border:1px solid rgba(75,143,212,.26);color:#8fbbe8}
+.rm-gate b{color:var(--blue)}
+.rm-exit{font-size:11.5px;color:var(--ink-dim);margin-top:7px;line-height:1.6}
+
+/* ── 风险 ── */
+.rk{display:flex;flex-direction:column;gap:11px}
+.rk-item{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:16px}
+.rk-hd{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.rk-nm{font-size:14.5px;font-weight:600;flex:1}
+.rk-badge{font-size:10.5px;padding:3px 9px;border-radius:4px;letter-spacing:.5px;
+  background:rgba(208,87,79,.16);color:#e88b83}
+.rk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+.rk-cell{background:var(--bg2);border-radius:7px;padding:11px 13px}
+.rk-cell .ck{font-size:10.5px;color:var(--ink-dim);letter-spacing:.5px;margin-bottom:5px}
+.rk-cell .cv{font-size:12.5px;color:var(--ink);line-height:1.6}
+.rk-cell .cv.th{color:var(--orange);font-weight:600}
+.rk-act{font-size:12.5px;color:var(--ink-soft);line-height:1.7;margin-top:11px;
+  padding-top:11px;border-top:1px solid var(--line)}
+
+/* ── 变现链路页（v3 新增）── */
+.mn{display:flex;flex-direction:column;gap:0}
+.mn-stage{position:relative;margin-bottom:0}
+.mn-hd{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.mn-badge{font-size:10.5px;padding:3px 10px;border-radius:4px;letter-spacing:.5px;
+  background:rgba(212,162,78,.16);color:var(--gold)}
+.mn-badge.cash{background:rgba(74,168,112,.2);color:#7cc49a}
+.mn-ti{font-size:15px;font-weight:600}
+.mn-why{font-size:12px;color:var(--ink-dim);margin-left:auto}
+.mn-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px}
+.mn-card{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:14px}
+.mn-card.cash{border-color:rgba(74,168,112,.42);background:rgba(74,168,112,.05)}
+.mn-card .ck{font-size:10.5px;color:var(--ink-dim);letter-spacing:.5px;margin-bottom:6px}
+.mn-card .cn{font-size:13.5px;font-weight:600;margin-bottom:7px}
+.mn-card .cd{font-size:12px;color:var(--ink-soft);line-height:1.65}
+.mn-card .cm{font-size:11px;color:var(--gold);margin-top:8px;font-family:ui-monospace,monospace}
+.mn-arrow{display:flex;align-items:center;justify-content:center;padding:9px 0;
+  color:var(--ink-dim);font-size:16px}
+.mn-arrow span{font-size:11px;letter-spacing:1px}
+.mn-note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:8px;padding:15px 17px;margin-top:16px}
+.mn-note h4{font-size:13.5px;margin-bottom:9px}
+.mn-note p{font-size:12.5px;color:var(--ink-soft);line-height:1.75}
+.mn-note .nd{display:block;margin-top:8px;font-size:11.5px;color:var(--ink-dim)}
+
+footer{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-dim);line-height:1.8}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="brand">
+      <h1>养生一人公司生存地图</h1>
+      <span class="sub">位次 × 月产出产能 × 工具化程度</span>
+    </div>
+    <nav>
+      <button class="on" data-tab="map">生存地图</button>
+      <button data-tab="chain">工序链</button>
+      <button data-tab="sim">经营推演</button>
+      <button data-tab="funnel">变现链路</button>
+      <button data-tab="roadmap">90天路线</button>
+      <button data-tab="risk">风险预警</button>
+      <button data-tab="report">生成报告</button>
+      <button data-tab="model">生存模型</button>
+      <button data-tab="cases">案例库</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="main">
+  <!-- ══ 侧栏 ══ -->
+  <aside class="side">
+    <div class="card">
+      <h3>位次状态分布</h3>
+      <div class="legend-item"><span class="dot" style="background:#d97a72"></span><div><b>纯手工区</b><span>关键动作仍靠人逐条手写，人力占用最重，无法规模复制。</span><em>门槛 工具化率 < 30% · 暂无位次，待进入</em></div></div>
+<div class="legend-item"><span class="dot" style="background:#e39c58"></span><div><b>工具区</b><span>有脚本可用但没有统一契约与出处溯源，产出依赖个人习惯。</span><em>门槛 30% ≤ 工具化率 < 55% · 当前 3 个位次</em></div></div>
+<div class="legend-item"><span class="dot" style="background:#d9bb62"></span><div><b>流程区</b><span>关键动作已进管线，产出可重跑可验收，人只做定稿。</span><em>门槛 55% ≤ 工具化率 < 80% · 当前 5 个位次</em></div></div>
+<div class="legend-item"><span class="dot" style="background:#5cba83"></span><div><b>系统区</b><span>一人可跑完整闭环：素材供给、合规校验、分发落地全部自洽。</span><em>门槛 工具化率 ≥ 80% · 当前 2 个位次</em></div></div>
+    </div>
+    <div class="card">
+      <h3>数据来源</h3>
+      <div class="stat-grid"><div class="stat"><div class="n">10<small>个</small></div><div class="l">在图位次总数</div></div>
+<div class="stat"><div class="n">205<small>条</small></div><div class="l">知识表素材总量</div></div>
+<div class="stat"><div class="n">7<small>个</small></div><div class="l">素材加工位次</div></div>
+<div class="stat"><div class="n">3<small>个</small></div><div class="l">成品出口位次</div></div>
+<div class="stat"><div class="n">8<small>类</small></div><div class="l">内容主题分类</div></div>
+<div class="stat"><div class="n">24/24<small></small></div><div class="l">节气全覆盖</div></div>
+<div class="stat"><div class="n">12<small>种</small></div><div class="l">基础体质分类</div></div>
+<div class="stat"><div class="n">14/14 拦截<small></small></div><div class="l">红线注入测试</div></div></div>
+      <div style="margin-top:11px;font-size:11px;color:var(--ink-dim);line-height:1.6">
+        面积口径为<b>月产出件数</b>，由各工序链的残余工时推算；
+        独占素材条数可逐条回溯至 data/养生知识表.csv，十个位次合计 205 条；
+        工具化率由各动作节点的工具化状态加权得出。
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn primary" onclick="go('report')">生成我的报告</button>
+      <button class="btn ghost" onclick="go('cases')">查看案例</button>
+    </div>
+    <div class="card founder">
+      <b>项目发起</b><br>
+      面积 = 月产出件数<br>
+      进度条 = 工具化率<br>
+      <span style="display:inline-block;margin-top:9px;padding:2px 8px;
+        border-radius:4px;background:rgba(212,162,78,.14);
+        color:var(--gold);font-size:10.5px">真实业务数据</span>
+    </div>
+  </aside>
+
+  <!-- ══ 主区 ══ -->
+  <main>
+    <!-- 生存地图 -->
+    <section class="panel on" id="panel-map">
+      <div class="panel-hd">
+        <h2>养生内容与服务的十种一人位次</h2>
+        <p>每个方块是一类可独立经营的内容或服务位次。方块面积代表该位次可调用的
+          素材规模，颜色与进度条代表工具化程度——即有多少动作已经进管线、
+          人只需做定稿。点击任一方块查看该位次的动作拆解。</p>
+      </div>
+      <div class="legend-bar">
+        <span style="color:var(--ink-dim)">工具化率</span>
+        <span class="li"><span class="dot" style="background:#d97a72"></span>纯手工区 &lt;30%</span>
+        <span class="li"><span class="dot" style="background:#e39c58"></span>工具区 30–55%</span>
+        <span class="li"><span class="dot" style="background:#d9bb62"></span>流程区 55–80%</span>
+        <span class="li"><span class="dot" style="background:#5cba83"></span>系统区 ≥80%</span>
+        <span style="margin-left:auto;color:var(--ink-dim)">面积 = 可调用素材条数</span>
+      </div>
+      <div class="tm-wrap">
+        <svg id="treemap" viewBox="0 0 1240 1000" role="img"
+             aria-label="养生一人公司位次与工具化程度分布图">
+          <g class="tm-cell" data-key="self_reflect" tabindex="0" role="button" aria-label="自省心性号主"><rect x="3.0" y="3.0" width="458.5" height="476.1" rx="6" fill="#d9bb62"/>
+<text class="tm-name" x="15.0" y="27.0">自省心性号主</text>
+<text class="tm-sub" x="15.0" y="45.0">每日一问 · 情绪起居</text>
+<text class="tm-rate" x="15.0" y="77.0">工具化 75%</text>
+<rect class="tm-bar-bg" x="15.0" y="87.0" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="15.0" y="87.0" width="99.0" height="5" rx="2.5"/>
+<text class="tm-area" x="15.0" y="107.0">月产 106 件 · 独占素材 12 条</text>
+<text class="tm-kind" x="15.0" y="468.1">素材位次</text>
+<text class="tm-quad" x="450.5" y="468.1" text-anchor="end">流程区</text>
+</g>
+<g class="tm-cell" data-key="community" tabindex="0" role="button" aria-label="社群私域主"><rect x="467.5" y="3.0" width="414.6" height="476.1" rx="6" fill="#d9bb62"/>
+<text class="tm-name" x="479.5" y="27.0">社群私域主</text>
+<text class="tm-sub" x="479.5" y="45.0">早报分发 · 长期陪伴</text>
+<text class="tm-rate" x="479.5" y="77.0">工具化 75%</text>
+<rect class="tm-bar-bg" x="479.5" y="87.0" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="479.5" y="87.0" width="99.0" height="5" rx="2.5"/>
+<text class="tm-area" x="479.5" y="107.0">月产 96 件 · 独占素材 0 条</text>
+<text class="tm-kind" x="479.5" y="468.1">成品出口</text>
+<text class="tm-quad" x="871.1" y="468.1" text-anchor="end">流程区</text>
+</g>
+<g class="tm-cell" data-key="routine_channel" tabindex="0" role="button" aria-label="起居调养号主"><rect x="888.1" y="3.0" width="348.9" height="476.1" rx="6" fill="#d9bb62"/>
+<text class="tm-name" x="900.1" y="27.0">起居调养号主</text>
+<text class="tm-sub" x="900.1" y="45.0">作息起居 · 日常节律</text>
+<text class="tm-rate" x="900.1" y="77.0">工具化 67%</text>
+<rect class="tm-bar-bg" x="900.1" y="87.0" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="900.1" y="87.0" width="88.4" height="5" rx="2.5"/>
+<text class="tm-area" x="900.1" y="107.0">月产 81 件 · 独占素材 35 条</text>
+<text class="tm-kind" x="900.1" y="468.1">素材位次</text>
+<text class="tm-quad" x="1226.0" y="468.1" text-anchor="end">流程区</text>
+</g>
+<g class="tm-cell" data-key="solar_channel" tabindex="0" role="button" aria-label="节气养生号主"><rect x="3.0" y="485.1" width="426.7" height="321.1" rx="6" fill="#d9bb62"/>
+<text class="tm-name" x="15.0" y="509.1">节气养生号主</text>
+<text class="tm-sub" x="15.0" y="527.1">二十四节气 · 时令起居</text>
+<text class="tm-rate" x="15.0" y="559.1">工具化 75%</text>
+<rect class="tm-bar-bg" x="15.0" y="569.1" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="15.0" y="569.1" width="99.0" height="5" rx="2.5"/>
+<text class="tm-area" x="15.0" y="589.1">月产 67 件 · 独占素材 19 条</text>
+<text class="tm-kind" x="15.0" y="795.2">素材位次</text>
+<text class="tm-quad" x="418.7" y="795.2" text-anchor="end">流程区</text>
+</g>
+<g class="tm-cell" data-key="constitution_channel" tabindex="0" role="button" aria-label="体质辨析号主"><rect x="435.7" y="485.1" width="420.3" height="321.1" rx="6" fill="#5cba83"/>
+<text class="tm-name" x="447.7" y="509.1">体质辨析号主</text>
+<text class="tm-sub" x="447.7" y="527.1">九种体质 · 倾向科普</text>
+<text class="tm-rate" x="447.7" y="559.1">工具化 80%</text>
+<rect class="tm-bar-bg" x="447.7" y="569.1" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="447.7" y="569.1" width="105.6" height="5" rx="2.5"/>
+<text class="tm-area" x="447.7" y="589.1">月产 66 件 · 独占素材 37 条</text>
+<text class="tm-kind" x="447.7" y="795.2">素材位次</text>
+<text class="tm-quad" x="845.0" y="795.2" text-anchor="end">系统区</text>
+</g>
+<g class="tm-cell" data-key="food_channel" tabindex="0" role="button" aria-label="食养内容号主"><rect x="862.0" y="485.1" width="375.0" height="321.1" rx="6" fill="#5cba83"/>
+<text class="tm-name" x="874.0" y="509.1">食养内容号主</text>
+<text class="tm-sub" x="874.0" y="527.1">一食一养 · 日常餐桌</text>
+<text class="tm-rate" x="874.0" y="559.1">工具化 80%</text>
+<rect class="tm-bar-bg" x="874.0" y="569.1" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="874.0" y="569.1" width="105.6" height="5" rx="2.5"/>
+<text class="tm-area" x="874.0" y="589.1">月产 59 件 · 独占素材 79 条</text>
+<text class="tm-kind" x="874.0" y="795.2">素材位次</text>
+<text class="tm-quad" x="1226.0" y="795.2" text-anchor="end">系统区</text>
+</g>
+<g class="tm-cell" data-key="classic_channel" tabindex="0" role="button" aria-label="经典研读博主"><rect x="3.0" y="812.2" width="370.4" height="184.8" rx="6" fill="#e39c58"/>
+<text class="tm-name" x="15.0" y="836.2">经典研读博主</text>
+<text class="tm-sub" x="15.0" y="854.2">内经原文 · 逐条出处</text>
+<text class="tm-rate" x="15.0" y="886.2">工具化 50%</text>
+<rect class="tm-bar-bg" x="15.0" y="896.2" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="15.0" y="896.2" width="66.0" height="5" rx="2.5"/>
+<text class="tm-area" x="15.0" y="916.2">月产 34 件 · 独占素材 10 条</text>
+<text class="tm-kind" x="15.0" y="986.0">素材位次</text>
+<text class="tm-quad" x="362.4" y="986.0" text-anchor="end">工具区</text>
+</g>
+<g class="tm-cell" data-key="monetize" tabindex="0" role="button" aria-label="私域变现主"><rect x="379.4" y="812.2" width="326.1" height="184.8" rx="6" fill="#e39c58"/>
+<text class="tm-name" x="391.4" y="836.2">私域变现主</text>
+<text class="tm-sub" x="391.4" y="854.2">会员订阅 · 付费社群</text>
+<text class="tm-rate" x="391.4" y="886.2">工具化 30%</text>
+<rect class="tm-bar-bg" x="391.4" y="896.2" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="391.4" y="896.2" width="39.6" height="5" rx="2.5"/>
+<text class="tm-area" x="391.4" y="916.2">月产 30 件 · 独占素材 13 条</text>
+<text class="tm-kind" x="391.4" y="986.0">现金出口</text>
+<text class="tm-quad" x="694.6" y="986.0" text-anchor="end">工具区</text>
+</g>
+<g class="tm-cell" data-key="content_dual" tabindex="0" role="button" aria-label="短视频图文内容主"><rect x="711.6" y="812.2" width="281.9" height="184.8" rx="6" fill="#d9bb62"/>
+<text class="tm-name" x="723.6" y="836.2">短视频图文内容主</text>
+<text class="tm-sub" x="723.6" y="854.2">口播成片 · 图文笔记</text>
+<text class="tm-rate" x="723.6" y="886.2">工具化 57%</text>
+<rect class="tm-bar-bg" x="723.6" y="896.2" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="723.6" y="896.2" width="75.2" height="5" rx="2.5"/>
+<text class="tm-area" x="723.6" y="916.2">月产 26 件 · 独占素材 0 条</text>
+<text class="tm-kind" x="723.6" y="986.0">成品出口</text>
+<text class="tm-quad" x="982.4" y="986.0" text-anchor="end">流程区</text>
+</g>
+<g class="tm-cell" data-key="course_teacher" tabindex="0" role="button" aria-label="线上课程讲师"><rect x="999.4" y="812.2" width="237.6" height="184.8" rx="6" fill="#e39c58"/>
+<text class="tm-name" x="1011.4" y="836.2">线上课程讲师</text>
+<text class="tm-sub" x="1011.4" y="854.2">体系课 · 直播带教</text>
+<text class="tm-rate" x="1011.4" y="886.2">工具化 50%</text>
+<rect class="tm-bar-bg" x="1011.4" y="896.2" width="132.0" height="5" rx="2.5"/>
+<rect class="tm-bar-fg" x="1011.4" y="896.2" width="66.0" height="5" rx="2.5"/>
+<text class="tm-area" x="1011.4" y="916.2">月产 22 件 · 独占素材 0 条</text>
+<text class="tm-kind" x="1011.4" y="986.0">成品出口</text>
+<text class="tm-quad" x="1226.0" y="986.0" text-anchor="end">工具区</text>
+</g>
+        </svg>
+      </div>
+      <div class="detail" id="detail"></div>
+    </section>
+
+    <!-- 工序链 -->
+    <section class="panel" id="panel-chain">
+      <div class="panel-hd">
+        <h2>工序链 · 从一条素材到一件成品</h2>
+        <p>地图给出的是横截面：这���位次有多大素材、多高工具化率。
+          工序链补上纵深——一件事到底经过哪几道工序、每道占多少工时、
+          哪一道是真正的瓶颈。选择位次查看完整链路。</p>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>选择位次</label>
+          <div class="opts" id="chainOpts"><div class="opt" data-role="self_reflect"><div class="o-n">自省心性号主</div><div class="o-s">条问答 · 残余 30 分</div></div>
+<div class="opt" data-role="community"><div class="o-n">社群私域主</div><div class="o-s">期早报 · 残余 33 分</div></div>
+<div class="opt" data-role="routine_channel"><div class="o-n">起居调养号主</div><div class="o-s">条图文 · 残余 39 分</div></div>
+<div class="opt" data-role="solar_channel"><div class="o-n">节气养生号主</div><div class="o-s">条图文 · 残余 47 分</div></div>
+<div class="opt" data-role="constitution_channel"><div class="o-n">体质辨析号主</div><div class="o-s">条图文 · 残余 48 分</div></div>
+<div class="opt" data-role="food_channel"><div class="o-n">食养内容号主</div><div class="o-s">条图文 · 残余 54 分</div></div>
+<div class="opt" data-role="classic_channel"><div class="o-n">经典研读博主</div><div class="o-s">篇释读 · 残余 93 分</div></div>
+<div class="opt" data-role="monetize"><div class="o-n">私域变现主</div><div class="o-s">次交付 · 残余 107 分</div></div>
+<div class="opt" data-role="content_dual"><div class="o-n">短视频图文内容主</div><div class="o-s">条成品 · 残余 121 分</div></div>
+<div class="opt" data-role="course_teacher"><div class="o-n">线上课程讲师</div><div class="o-s">节课 · 残余 141 分</div></div></div>
+        </div>
+      </div>
+      <div class="report" id="chain"></div>
+    </section>
+
+    <!-- 经营推演 -->
+    <section class="panel" id="panel-sim">
+      <div class="panel-hd">
+        <h2>经营推演 · 一人公司到底能产出多少</h2>
+        <p>拖动三个参数，实时看产能如何变化：每周投入多少工时、
+          瓶颈工序优化到什么程度、额外投入多少自动化。
+          推演只算产能与工时结构，不做收入预测——没有真实定价与转化数据时，
+          任何收入数字都是虚构。</p>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>选择位次</label>
+          <div class="opts" id="simOpts"><div class="opt" data-role="self_reflect"><div class="o-n">自省心性号主</div><div class="o-s">条问答 · 残余 30 分</div></div>
+<div class="opt" data-role="community"><div class="o-n">社群私域主</div><div class="o-s">期早报 · 残余 33 分</div></div>
+<div class="opt" data-role="routine_channel"><div class="o-n">起居调养号主</div><div class="o-s">条图文 · 残余 39 分</div></div>
+<div class="opt" data-role="solar_channel"><div class="o-n">节气养生号主</div><div class="o-s">条图文 · 残余 47 分</div></div>
+<div class="opt" data-role="constitution_channel"><div class="o-n">体质辨析号主</div><div class="o-s">条图文 · 残余 48 分</div></div>
+<div class="opt" data-role="food_channel"><div class="o-n">食养内容号主</div><div class="o-s">条图文 · 残余 54 分</div></div>
+<div class="opt" data-role="classic_channel"><div class="o-n">经典研读博主</div><div class="o-s">篇释读 · 残余 93 分</div></div>
+<div class="opt" data-role="monetize"><div class="o-n">私域变现主</div><div class="o-s">次交付 · 残余 107 分</div></div>
+<div class="opt" data-role="content_dual"><div class="o-n">短视频图文内容主</div><div class="o-s">条成品 · 残余 121 分</div></div>
+<div class="opt" data-role="course_teacher"><div class="o-n">线上课程讲师</div><div class="o-s">节课 · 残余 141 分</div></div></div>
+        </div>
+        <div class="field">
+          <label>推演参数</label>
+          <div class="sim-ctrl">
+            <div class="sim-c">
+              <div class="sim-c-l"><span>每周投入工时</span><b id="simHoursVal">20 小时</b></div>
+              <input type="range" id="simHours" min="4" max="60" step="1" value="20">
+              <div class="hint">一人公司的真实上限受维持性开销挤压，
+                有效产出系数已按 55% 计入。</div>
+            </div>
+            <div class="sim-c">
+              <div class="sim-c-l"><span>瓶颈优化力度</span><b id="simOptVal">40%</b></div>
+              <input type="range" id="simOpt" min="0" max="100" step="5" value="40">
+              <div class="hint">把占比最高的工序接进管线或做减法的力度，
+                直接决定单件残余工时。</div>
+            </div>
+            <div class="sim-c">
+              <div class="sim-c-l"><span>自动化投入</span><b id="simAutoVal">40%</b></div>
+              <input type="range" id="simAuto" min="0" max="100" step="5" value="40">
+              <div class="hint">额外投入在自动化上的精力，
+                用于压缩半自动环节的定稿工时。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="report" id="sim"></div>
+    </section>
+
+    <!-- 变现链路 -->
+    <section class="panel" id="panel-funnel">
+      <div class="panel-hd">
+        <h2>变现链路 · 线下交付停办后钱从哪来</h2>
+        <p>线下交付已停办，这条路径不再存在。本页说明养生链现在
+          唯一的现金路径：从公开内容到私域沉淀，再到会员订阅。
+          每一环给出承载位次、靠什么能力撑住，以及这一环通了的判据。
+          <b>本页不出现任何收入数字</b> —— 没有真实的定价、转化与续订数据时，
+          收入预测都是虚构；判据是可观测口径，由你自己的真实数据来填。</p>
+      </div>
+      <div class="mn"><div class="mn-stage"><div class="mn-hd"><span class="mn-badge">内容层</span><span class="mn-ti">公开内容位次</span><span class="mn-why">拉新入口</span></div><div class="mn-row"><div class="mn-card"><div class="ck">承载位次</div><div class="cn">短视频图文 · 图文笔记 · 课程</div><div class="cd">全部为公开内容位次，承担拉新与信任建立，不直接收费。</div><div class="cm">工具化率 50%–67%</div></div><div class="mn-card"><div class="ck">合规前置</div><div class="cn">每条成品带出处与免责</div><div class="cd">内容先过校验器再发布，只写体质倾向与生活原则，不写病名、不承诺效果、不限定特定人群。</div><div class="cm">红线 22 项校验</div></div></div></div>
+<div class="mn-arrow"><span>▼</span></div>
+<div class="mn-stage"><div class="mn-hd"><span class="mn-badge">沉淀层</span><span class="mn-ti">社群私域主</span><span class="mn-why">把注意力变成可反复触达的关系</span></div><div class="mn-row"><div class="mn-card"><div class="ck">承载位次</div><div class="cn">社群私域主 · 早报推送</div><div class="cd">早报每日自动生成并推送，是持续触达的载体；订阅内容排期也由此承接。</div><div class="cm">早报六卡 · 自动生成即校验</div></div><div class="mn-card"><div class="ck">触达依据</div><div class="cn">体质自测工具</div><div class="cd">自测结果页引用知识表原文，用户带着自己的体质倾向进入社群。</div><div class="cm">36 题 · 9 体质</div></div></div></div>
+<div class="mn-arrow"><span>▼</span></div>
+<div class="mn-stage"><div class="mn-hd"><span class="mn-badge cash">现金出口</span><span class="mn-ti">私域变现主</span><span class="mn-why">唯一产生现金的环节</span></div><div class="mn-row"><div class="mn-card cash"><div class="ck">承接位次</div><div class="cn">会员订阅 · 付费社群</div><div class="cd">承接前两层沉淀的关系，把长期陪伴转为付费订阅权益。</div><div class="cm">月交付 30 次（工序链推导）</div></div><div class="mn-card cash"><div class="ck">边界约束</div><div class="cn">边界与项目条目归此位次</div><div class="cd">对外物料先过合规校验；项目类条目仅作知识素材介绍，不构成服务承诺。</div><div class="cm">付费物料合规校验已进管线</div></div></div></div></div>
+      <div class="mn-note">
+        <h4>三环通路判据</h4>
+        <p><b>公开内容层：</b>连续 4 周按节奏产出，且每条带出处与免责<span class="nd">若不成立 —— 内容供给不稳，后面两层就没有原料</span></p><p><b>私域沉淀层：</b>自测工具的使用者中，有明确比例进入早报订阅并留下体质记录<span class="nd">若不成立 —— 没有留下个人画像的读者，付费时无法承接</span></p><p><b>现金出口层：</b>订阅者的续订意愿能被记录，而非只统计一次付费<span class="nd">若不成立 —— 只做一次性成交，无法判断陪伴关系是否成立</span></p>
+        <span class="nd">判据只描述「怎么算通」，不预设「会赚多少」。
+          收入、转化率与成本一律不由本表推算。</span>
+      </div>
+    </section>
+
+    <!-- 90 天路线 -->
+    <section class="panel" id="panel-roadmap">
+      <div class="panel-hd">
+        <h2>90 天推进路线 · 三阶段与出口条件</h2>
+        <p>工具化的次序不是随意的。先让素材可信，再让重复进管线，
+          最后接上分发与复盘。每个阶段都有明确的出口条件，
+          达不到就说明还没到进入下一阶段的条件。</p>
+      </div>
+      <div class="rm"><div class="rm-item"><div class="rm-hd"><span class="rm-ph">阶段 1</span><span class="rm-ti">立契约 · 让素材可信</span><span class="rm-w">第 1–30 天</span></div><div class="rm-goal">把养生知识表做成唯一真相源，每条可溯源、每条过红线。</div><div class="rm-tasks"><div class="rm-task done"><span class="mark">✓</span><span class="tt">建立 SSOT 登记表，明确唯一写入者</span><span class="ts">docs/契约层.md</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">知识表补出处至篇名级，节气条目到原句级</span><span class="ts">upgrade_sources.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">10 类合规校验规则跑通，全表 0 错误</span><span class="ts">validate_ssot.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">食养条目去功效化重写，杜绝症状指向</span><span class="ts">rewrite_food_entries.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">节气与经典条目建立出处对照表</span><span class="ts">data/节气经典_出处对照表.md</span></div></div><div class="rm-gate"><b>出口条件：</b>SSOT 校验 0 错误 0 警告，且任一条目可在 30 秒内回溯出处</div><div class="rm-exit"><b>未达成则：</b>校验器有非零错误，或仍存在无法回溯出处的条目</div></div>
+<div class="rm-item"><div class="rm-hd"><span class="rm-ph">阶段 2</span><span class="rm-ti">上管线 · 把重复接进脚本</span><span class="rm-w">第 31–60 天</span></div><div class="rm-goal">重复搬运型环节全部进管线，人力集中到判断与表达。</div><div class="rm-tasks"><div class="rm-task done"><span class="mark">✓</span><span class="tt">早报六卡自动生成，含合规扫描</span><span class="ts">build_daily_brief.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">早报推送云文档，上传前十项自检</span><span class="ts">push_brief_to_docs.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">体质自测工具生成，结果页红线三层校验</span><span class="ts">build_constitution_test.py</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">选题抽取、脚本初稿接入早报管线</span><span class="ts">build_daily_brief.py</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">逐位次锁定瓶颈工序并安排工具化</span><span class="ts">本表瓶颈一栏</span></div></div><div class="rm-gate"><b>出口条件：</b>选定一个位次，其手工环节仅剩表达与判断类，且瓶颈工序工时占比降至 25% 以下</div><div class="rm-exit"><b>未达成则：</b>瓶颈工序仍占单件工时 25% 以上，说明提效未落到点上</div></div>
+<div class="rm-item"><div class="rm-hd"><span class="rm-ph">阶段 3</span><span class="rm-ti">建闭环 · 产出分发复盘成回路</span><span class="rm-w">第 61–90 天</span></div><div class="rm-goal">内容产出、自动分发与效果回看连成可迭代的闭环。</div><div class="rm-tasks"><div class="rm-task done"><span class="mark">✓</span><span class="tt">分发通道固化到云文档空间</span><span class="ts">早报推送通道_腾讯文档.md</span></div><div class="rm-task done"><span class="mark">✓</span><span class="tt">案例库沉淀可对外展示的成品</span><span class="ts">生存地图案例页</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">按位次建立产出节奏与产能基线</span><span class="ts">本表单位经济</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">沉淀可复用模板，形成第二内容源</span><span class="ts">—</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">建立回流机制：读者问题回灌素材表</span><span class="ts">—</span></div></div><div class="rm-gate"><b>出口条件：</b>连续 4 周按计划节奏产出，且每期产出都带出处与免责</div><div class="rm-exit"><b>未达成则：</b>无法维持连续 4 周节奏，说明产能基线定得过高</div></div>
+<div class="rm-item"><div class="rm-hd"><span class="rm-ph">阶段 4</span><span class="rm-ti">收现金 · 把陪伴转成订阅</span><span class="rm-w">第 91–180 天</span></div><div class="rm-goal">线下交付停办后的唯一现金路径：内容拉新 → 私域沉淀 → 订阅。先跑通三环的通路判据，再谈规模。</div><div class="rm-tasks"><div class="rm-task todo"><span class="mark">○</span><span class="tt">会员权益结构设计与边界自检</span><span class="ts">本表变现链路第三环</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">订阅内容排期接入早报管线</span><span class="ts">build_daily_brief.py</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">付费物料合规校验接入订阅流程</span><span class="ts">ssot_guard</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">记录续订与退订，建立留存口径</span><span class="ts">—</span></div><div class="rm-task todo"><span class="mark">○</span><span class="tt">按真实数据回填三环通路判据</span><span class="ts">本表变现链路</span></div></div><div class="rm-gate"><b>出口条件：</b>三环各有连续 4 周的真实记录，且续订意愿能被统计，而不只是统计一次付费</div><div class="rm-exit"><b>未达成则：</b>只能统计一次性成交、统计不出续订意愿，说明陪伴关系尚未成立，此时扩量只会放大流失</div></div></div>
+    </section>
+
+    <!-- 风险预警 -->
+    <section class="panel" id="panel-risk">
+      <div class="panel-hd">
+        <h2>风险预警 · 六条可观测的判据</h2>
+        <p>生存地图的横截面看不出风险。风险必须绑定到可观测指标和判定阈值上，
+          否则只是担心，不是管理。以下每条都给出观测口径、阈值与应对。</p>
+      </div>
+      <div class="rk"><div class="rk-item"><div class="rk-hd"><span class="rk-nm">素材见底</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">主素材池可用条数</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">剩余可用条数 &lt; 3 个月产出量</div></div></div><div class="rk-act"><b>成因：</b>素材耗尽则被迫降质或停更，位次失去内容供给<br><b>应对：</b>扩池：接入起居、自省、节气交叉取材，或把长文拆成系列</div></div>
+<div class="rk-item"><div class="rk-hd"><span class="rk-nm">瓶颈固化</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">单件工时中最大工序占比</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">&gt; 25% 且为手工环节</div></div></div><div class="rk-act"><b>成因：</b>一道工序吃掉四分之一精力，是产能天花板的真实所在<br><b>应对：</b>对该工序做工具化或减法：能否删、并、改为模板复用</div></div>
+<div class="rk-item"><div class="rk-hd"><span class="rk-nm">合规反噬</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">校验器错误数 / 注入拦截率</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">错误数 &gt; 0，或拦截率 &lt; 100%</div></div></div><div class="rk-act"><b>成因：</b>一条越界内容可让整个内容位次失去信任，且传播不可撤回<br><b>应对：</b>停更排查，先修校验器再恢复产出；红线不做例外</div></div>
+<div class="rk-item"><div class="rk-hd"><span class="rk-nm">产能透支</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">周产出件数的残余工时占周可用工时比</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">&gt; 100%（排期已超可用工时）</div></div></div><div class="rk-act"><b>成因：</b>长期超载会牺牲质量，最终触发合规问题或断更<br><b>应对：</b>降频而非降质：把节奏从每日改为隔日，保住单件水准</div></div>
+<div class="rk-item"><div class="rk-hd"><span class="rk-nm">单点依赖</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">位次中纯手工动作数</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">≥ 2 个且都不可迁移</div></div></div><div class="rk-act"><b>成因：</b>一人公司的产能随人状态波动，单点依赖会让排期连续失真<br><b>应对：</b>把其中一个改为半自动：脚本出初稿，人只定稿</div></div>
+<div class="rk-item"><div class="rk-hd"><span class="rk-nm">口径漂移</span><span class="rk-badge">高关注</span></div><div class="rk-grid"><div class="rk-cell"><div class="ck">观测指标</div><div class="cv">面积口径与工具化率是否仍可回溯</div></div><div class="rk-cell"><div class="ck">判定阈值</div><div class="cv th">任一项无法回溯到数据层</div></div></div><div class="rk-act"><b>成因：</b>口径一旦不可核验，地图就成了自我说服，决策失去依据<br><b>应对：</b>停用相关结论，回到 SSOT 重建口径后再算</div></div></div>
+    </section>
+
+    <!-- 生成报告 -->
+    <section class="panel" id="panel-report">
+      <div class="panel-hd">
+        <h2>生成我的养生位次报告</h2>
+        <p>选择你实际在做的位次与当前工作方式，报告会给出该位次的工具化率现状、
+          仍需人工的动作，以及按依赖关系排序的下一步。每条建议都指向工作区里
+          已经存在的能力，不是空泛建议。</p>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>你的位次</label>
+          <div class="opts" id="roleOpts"><div class="opt" data-role="self_reflect"><div class="o-n">自省心性号主</div><div class="o-s">每日一问 · 情绪起居</div></div>
+<div class="opt" data-role="community"><div class="o-n">社群私域主</div><div class="o-s">早报分发 · 长期陪伴</div></div>
+<div class="opt" data-role="routine_channel"><div class="o-n">起居调养号主</div><div class="o-s">作息起居 · 日常节律</div></div>
+<div class="opt" data-role="solar_channel"><div class="o-n">节气养生号主</div><div class="o-s">二十四节气 · 时令起居</div></div>
+<div class="opt" data-role="constitution_channel"><div class="o-n">体质辨析号主</div><div class="o-s">九种体质 · 倾向科普</div></div>
+<div class="opt" data-role="food_channel"><div class="o-n">食养内容号主</div><div class="o-s">一食一养 · 日常餐桌</div></div>
+<div class="opt" data-role="classic_channel"><div class="o-n">经典研读博主</div><div class="o-s">内经原文 · 逐条出处</div></div>
+<div class="opt" data-role="monetize"><div class="o-n">私域变现主</div><div class="o-s">会员订阅 · 付费社群</div></div>
+<div class="opt" data-role="content_dual"><div class="o-n">短视频图文内容主</div><div class="o-s">口播成片 · 图文笔记</div></div>
+<div class="opt" data-role="course_teacher"><div class="o-n">线上课程讲师</div><div class="o-s">体系课 · 直播带教</div></div></div>
+        </div>
+        <div class="field">
+          <label>当前工作方式<span class="hint">决定报告给出的下一步</span></label>
+          <div class="opts" id="stageOpts"><div class="opt" data-stage="manual"><div class="o-n">全手工</div><div class="o-s">所有内容靠人手写</div></div>
+<div class="opt" data-stage="tool"><div class="o-n">有工具</div><div class="o-s">有脚本但没有统一流程</div></div>
+<div class="opt" data-stage="pipeline"><div class="o-n">有流程</div><div class="o-s">关键动作已进管线</div></div>
+<div class="opt" data-stage="system"><div class="o-n">要闭环</div><div class="o-s">想跑完整闭环</div></div></div>
+        </div>
+      </div>
+      <div class="report" id="report"></div>
+    </section>
+
+    <!-- 生存模型 -->
+    <section class="panel" id="panel-model">
+      <div class="panel-hd">
+        <h2>四象限生存模型</h2>
+        <p>工具化程度不是越高越好。纯手工区的问题是人力占用重、无法复制；
+          系统区的风险是人不再是瓶颈、内容失去温度。健康的形态是——
+          让可重复的搬运工作进管线，把判断与表达留给自己。</p>
+      </div>
+      <div class="q-grid"><div class="q" style="border-top-color:#d97a72"><h4>纯手工区</h4><div class="th">门槛 工具化率 &lt; 30%</div><p>关键动作仍靠人逐条手写，人力占用最重，无法规模复制。</p><div class="cnt">当前无位次落在该象限，属于待进入阶段</div></div>
+<div class="q" style="border-top-color:#e39c58"><h4>工具区</h4><div class="th">门槛 30% ≤ 工具化率 &lt; 55%</div><p>有脚本可用但没有统一契约与出处溯源，产出依赖个人习惯。</p><div class="cnt">当前落在该象限：3 个位次</div></div>
+<div class="q" style="border-top-color:#d9bb62"><h4>流程区</h4><div class="th">门槛 55% ≤ 工具化率 &lt; 80%</div><p>关键动作已进管线，产出可重跑可验收，人只做定稿。</p><div class="cnt">当前落在该象限：5 个位次</div></div>
+<div class="q" style="border-top-color:#5cba83"><h4>系统区</h4><div class="th">门槛 工具化率 ≥ 80%</div><p>一人可跑完整闭环：素材供给、合规校验、分发落地全部自洽。</p><div class="cnt">当前落在该象限：2 个位次</div></div></div>
+      <div class="flow">
+        <h3>升级路径</h3>
+        <div class="flow-step"><div class="flow-n">1</div><div>
+          <div class="flow-t">先把素材沉淀成表</div>
+          <div class="flow-d">内容先落成结构化条目，逐条标注出处、适用条件与
+            边界。表格是所有后续自动化的地基，也是唯一真相源。</div></div></div>
+        <div class="flow-step"><div class="flow-n">2</div><div>
+          <div class="flow-t">再把重复动作写成脚本</div>
+          <div class="flow-d">拆分、校验、改写、配对、推送这类搬运工作写成
+            可重跑的脚本，输入是表，输出是成品。</div></div></div>
+        <div class="flow-step"><div class="flow-n">3</div><div>
+          <div class="flow-t">用校验器守住红线</div>
+          <div class="flow-d">每次产出自动过一遍合规校验，命中即阻断。
+            校验器本身还要用注入测试验证，不能只看合规样本通过。</div></div></div>
+        <div class="flow-step"><div class="flow-n">4</div><div>
+          <div class="flow-t">最后接上分发通道</div>
+          <div class="flow-d">产出自动推到阅读场景，形成每日或每周的固定节律。
+            分发前同样保留自检环节。</div></div></div>
+        <div class="flow-step"><div class="flow-n">5</div><div>
+          <div class="flow-t">把人留在判断与表达上</div>
+          <div class="flow-d">经典释读、当面沟通、选材判断这些含判断的环节
+            刻意保留手工。工具化率的满分不是 100%，而是不该自动化的部分
+            确实留在了人手上。</div></div></div>
+      </div>
+    </section>
+
+    <!-- 案例库 -->
+    <section class="panel" id="panel-cases">
+      <div class="panel-hd">
+        <h2>已落地的养生链案例</h2>
+        <p>以下每一项都已在工作区落地并通过校验，可直接查阅对应文件。
+          这不是能力清单，是已经跑通的部分。</p>
+      </div>
+      <div class="cases"><div class="case"><div class="tag">已落地 · 契约层</div><h4>SSOT 单一真相源登记表</h4><p>每个数据文件有且只有一个写入者，其余角色只读。知识表与内容素材物理隔离，避免权限外溢。写入者提出变更、其他角色确认后才可落盘。</p><div class="kv"><span>2 张真相源表 <b>物理隔离</b></span><span>只写不读 <b>写入者唯一</b></span></div></div>
+<div class="case"><div class="tag">已落地 · 数据层</div><h4>养生知识表 205 条</h4><p>八个主题分类，逐条标注适用体质、适用节气、内容要点、出处、食材清单与关联项目。出处全部回填至篇名级，节气条目达到原句级，26 条节气与经典条目可逐条回查对照表。</p><div class="kv"><span>205 条 <b>全部带出处</b></span><span>24/24 <b>节气覆盖</b></span></div></div>
+<div class="case"><div class="tag">已落地 · 安全审查</div><h4>10 类校验 + 14 项注入测试</h4><p>校验脚本覆盖断言类、用药类、特定人群、问询类、项目类、食材目录归属等十类规则。另有独立注入测试验证防线本身有效，不是只看合规样本通过。</p><div class="kv"><span>0 错误 <b>205 条全过</b></span><span>14/14 <b>注入拦截</b></span></div></div>
+<div class="case"><div class="tag">已落地 · 内容层</div><h4>养生日课早报六卡</h4><p>按日期与节气自动生成节气快照、体质画像、经典条文、今日养护、自省问答、明日预告六张卡片，附出处与免责说明，可直接推送到云文档空间。</p><div class="kv"><span>6 卡 <b>每日一套</b></span><span>自动 <b>生成即校验</b></span></div></div>
+<div class="case"><div class="tag">已落地 · 工具层</div><h4>体质自测单文件应用</h4><p>36 题覆盖九种体质倾向，结果页建议逐条引用知识表原文，溯源是结构性的而非人工比对。页面零外部依赖，离线双击即开。</p><div class="kv"><span>36 题 <b>九种体质</b></span><span>单文件 <b>零外部依赖</b></span></div></div>
+<div class="case"><div class="tag">已落地 · 分发层</div><h4>推送通道与自检</h4><p>早报转结构化文档上传，上传前执行十项自检：组件白名单、无表达式、颜色令牌、无联系方式、无外链、无购物导流、免责在位，任一不过即中止上传。</p><div class="kv"><span>10 项 <b>上传前自检</b></span><span>不过即停 <b>阻断上传</b></span></div></div>
+<div class="case"><div class="tag">已修正 · 数据层</div><h4>面积口径从重复计数改为互斥分摊</h4><p>原口径把「内容主题」与「输出渠道」混在一层，同一批素材被多个位次各算一遍，十个位次面积合计 569 条，而知识表实际只有 205 条。现按主题唯一归属重新分摊，各位次独占素材合计精确等于 205 条，面积口径统一为月产出件数，同单位可比、可复算。</p><div class="kv"><span>569 → 205 <b>重复计数已消除</b></span><span>Σ 精确守恒 <b>逐条可回溯</b></span></div></div>
+<div class="case"><div class="tag">已修正 · 经营层</div><h4>线下交付停办后的现金出口重建</h4><p>原模型中唯一产生现金的位次是线下门店交付，线下交付停办后该路径消失，全图无任何位次通向现金。现新增私域变现主作为唯一现金出口，承接内容位次的流量，把长期陪伴转为会员订阅；项目与边界类条目降级为知识素材，不再作为服务环节。</p><div class="kv"><span>1 个 <b>现金出口位次</b></span><span>9 + 1 <b>内容位次 + 变现位次</b></span></div></div></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  本页所有数字取自 data/养生知识表.csv 与实际脚本运行结果，可逐条回溯。<br>
+  内容仅用于养生日常起居参考，不构成诊断或治疗建议；身体不适请至正规医疗机构就诊。
+</footer>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// 养生一人公司 · 经营推演引擎（前端实时计算）
+// ─────────────────────────────────────────────────────────────
+// 输入：位次、每周投入工时、瓶颈优化力度、自动化投入
+// 输出：日/周产能、瓶颈环节、盈亏平衡判断、90 天累计产出
+//
+// 设计约束（与数据层一致）：
+//   · 不承诺收入。收入不由本引擎推算——没有真实定价与转化数据时，
+//     任何收入预测都是虚构。本引擎只算「产能与工时」这两件可核验的事。
+//   · 盈亏判断只做「产能是否匹配目标节奏」的判定，不输出金额。
+//
+// ─────────────────────────────────────────────────────────────
+
+const SIM = (function () {
+
+  // 从数据层取该位次的工序链与单位经济
+  function chainOf(roleKey) {
+    const r = MODEL.roles[roleKey];
+    return r ? r.chain_steps : [];
+  }
+
+  function econOf(roleKey) {
+    const r = MODEL.roles[roleKey];
+    return r ? r.unit_econ : null;
+  }
+
+  /**
+   * 核心推演
+   * @param {string} roleKey   位次
+   * @param {number} hoursPerWeek  每周投入工时（人）
+   * @param {number} optRate   瓶颈优化力度 0-100（把瓶颈手工环节接进管线的比例）
+   * @param {number} autoRate  自动化投入 0-100（额外投入工时用于把重复环节接进管线）
+   */
+  function run(roleKey, hoursPerWeek, optRate, autoRate) {
+    const steps = chainOf(roleKey);
+    const econ = econOf(roleKey);
+    if (!steps.length || !econ) return null;
+
+    // 1) 自动化投入的效果：把 semi 环节往前推
+    //    每投入 1 单位自动化工时，可把一个 semi 环节的定稿工时压到 40%
+    const autoGain = Math.round(econ.semi_minutes * (autoRate / 100) * 0.6);
+
+    // 2) 瓶颈优化：瓶颈工序若是手工/半自动，按优化力度削减
+    const bStep = steps.find(s => s.bottleneck);
+    let bottleneckSaved = 0;
+    let bottleneckName = bStep ? bStep.name : '—';
+    if (bStep && bStep.state !== 'auto') {
+      bottleneckSaved = Math.round(bStep.minutes * (optRate / 100) * 0.7);
+    }
+
+    // 3) 合成单件残余工时
+    const residual = Math.max(
+      1,
+      econ.residual_minutes - autoGain - bottleneckSaved
+    );
+
+    // 4) 产能：投入工时中，一部分用于维持性开销
+    const usableMinutes = hoursPerWeek * 60 * MODEL.config.effective_factor;
+    const piecesPerWeek = usableMinutes / residual;
+    const piecesPerDay = piecesPerWeek / 5;   // 按每周 5 个工作日
+
+    // 5) 90 天累计（约 12.9 周）
+    const pieces90 = piecesPerWeek * (90 / 7);
+
+    // 6) 瓶颈重算：优化后新的最大工序
+    const newSteps = steps.map(s => {
+      let m = s.minutes;
+      if (s.name === bottleneckName) m -= bottleneckSaved;
+      if (s.state === 'semi') m -= Math.round(autoGain * (s.minutes / (econ.semi_minutes || 1)));
+      return { name: s.name, minutes: Math.max(1, m), state: s.state };
+    });
+    const top = newSteps.reduce((a, b) => (b.minutes > a.minutes ? b : a), newSteps[0]);
+    const totalNew = newSteps.reduce((s, x) => s + x.minutes, 0);
+
+    // 7) 健康度判定（基于可核验的结构指标）
+    const manualCount = steps.filter(s => s.state === 'manual').length;
+    const health = judge(steps, optRate, autoRate, manualCount);
+
+    // 8) 节奏可行性：能否支撑一个现实的内容节奏
+    const cadence = cadenceJudge(piecesPerWeek);
+
+    return {
+      roleKey,
+      unit: econ.unit,
+      residualMinutes: residual,
+      baselineResidual: econ.residual_minutes,
+      savedMinutes: (econ.residual_minutes - residual),
+      usableMinutes: Math.round(usableMinutes),
+      piecesPerWeek: Math.round(piecesPerWeek * 10) / 10,
+      piecesPerDay: Math.round(piecesPerDay * 10) / 10,
+      pieces90: Math.round(pieces90),
+      bottleneckName,
+      bottleneckSaved,
+      newBottleneck: top.name,
+      newBottleneckShare: Math.round(top.minutes / totalNew * 100),
+      steps: newSteps.map(s => ({
+        ...s,
+        share: Math.round(s.minutes / totalNew * 100),
+      })),
+      health,
+      cadence,
+    };
+  }
+
+  // 健康度：只依据结构事实，不给主观打分
+  function judge(steps, optRate, autoRate, manualCount) {
+    const issues = [];
+    if (manualCount >= 2) {
+      issues.push({
+        level: 'warn',
+        text: `仍有 ${manualCount} 个纯手工环节，单点依赖偏高，一人公司的产能会随状态波动`,
+      });
+    }
+    if (optRate < 40) {
+      issues.push({
+        level: 'warn',
+        text: '瓶颈工序优化力度不足 40%，最大工序仍会吃掉大部分精力',
+      });
+    }
+    if (autoRate < 30) {
+      issues.push({
+        level: 'info',
+        text: '自动化投入偏低，半自动环节的定稿工时未被压缩',
+      });
+    }
+    const autoSteps = steps.filter(s => s.state === 'auto').length;
+    if (autoSteps / steps.length >= 0.5) {
+      issues.push({
+        level: 'good',
+        text: `已进管线环节占 ${Math.round(autoSteps / steps.length * 100)}%，素材供给端已可重跑`,
+      });
+    }
+    if (!issues.length) {
+      issues.push({ level: 'info', text: '结构上尚未发现明显短板，先按当前参数试跑一轮' });
+    }
+    return issues;
+  }
+
+  // 节奏判定：产能是否够一个现实的内容节奏
+  function cadenceJudge(piecesPerWeek) {
+    if (piecesPerWeek >= 20) {
+      return { level: 'good', text: `周产 ${Math.round(piecesPerWeek)} 件，可支撑高频日更` };
+    }
+    if (piecesPerWeek >= 8) {
+      return { level: 'good', text: `周产 ${Math.round(piecesPerWeek)} 件，可支撑每周 2–3 更的稳定节奏` };
+    }
+    if (piecesPerWeek >= 3) {
+      return { level: 'warn', text: `周产 ${Math.round(piecesPerWeek)} 件，属低频更新，需靠质量而非数量取胜` };
+    }
+    return { level: 'bad', text: `周产仅 ${Math.round(piecesPerWeek)} 件，节奏过密会牺牲质量，建议降频` };
+  }
+
+  return { run };
+})();
+
+const MODEL = {"roles":{"self_reflect":{"key":"self_reflect","name":"自省心性号主","sub":"每日一问 · 情绪起居","desc":"以自省问答为载体的内容位次。","themes":["自省"],"pool":["食养","体质","节气","经典","起居","边界","项目"],"is_channel":false,"is_cash":false,"material":12,"area":106,"area_note":"月产出件数 · 独占素材 12 条（自省）","rate":75,"quadrant":"pipeline_zone","quadrant_name":"流程区","quadrant_color":"yellow","actions":[{"name":"自省条目入库","state":"auto","state_label":"已进管线","tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"},{"name":"每日一问生成","state":"auto","state_label":"已进管线","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"早报合规扫描","state":"auto","state_label":"已进管线","tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"},{"name":"问答撰写与改写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["问答撰写与改写"],"chain_steps":[{"name":"自省条目入库","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":14.6,"bottleneck":false,"cum_minutes":6},{"name":"每日一问生成","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":12.2,"bottleneck":false,"cum_minutes":11},{"name":"早报合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":12.2,"bottleneck":false,"cum_minutes":16},{"name":"问答撰写与改写","state":"manual","state_label":"纯手工","minutes":25,"dep":"早报合规扫描","tool":null,"tool_evidence":"","share":61.0,"bottleneck":true,"cum_minutes":41}],"unit_econ":{"unit":"条问答","unit_note":"自省问答一条","total_minutes":41,"manual_minutes":25,"semi_minutes":0,"auto_minutes":16,"auto_saved_minutes":11,"residual_minutes":30,"weekly_usable_minutes":792,"pieces_per_day":5.3,"pieces_per_week":26,"bottleneck":"问答撰写与改写","bottleneck_share":61.0,"headroom_minutes":25,"pieces_per_week_if_optimized":63,"pieces_per_month":106}},"community":{"key":"community","name":"社群私域主","sub":"早报分发 · 长期陪伴","desc":"负责长期陪伴与内容分发，是转化链条的末端。","themes":[],"pool":["体质","边界"],"is_channel":true,"is_cash":false,"material":0,"area":96,"area_note":"月产出件数（工序链推导）","rate":75,"quadrant":"pipeline_zone","quadrant_name":"流程区","quadrant_color":"yellow","actions":[{"name":"早报每日生成","state":"auto","state_label":"已进管线","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"早报推送分发","state":"auto","state_label":"已进管线","tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"},{"name":"推送前合规自检","state":"auto","state_label":"已进管线","tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"},{"name":"群内答疑与陪伴","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["群内答疑与陪伴"],"chain_steps":[{"name":"早报每日生成","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":15.7,"bottleneck":false,"cum_minutes":8},{"name":"早报推送分发","state":"auto","state_label":"已进管线","minutes":12,"dep":null,"tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检","share":23.5,"bottleneck":false,"cum_minutes":20},{"name":"推送前合规自检","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检","share":11.8,"bottleneck":false,"cum_minutes":26},{"name":"群内答疑与陪伴","state":"manual","state_label":"纯手工","minutes":25,"dep":"早报推送分发","tool":null,"tool_evidence":"","share":49.0,"bottleneck":true,"cum_minutes":51}],"unit_econ":{"unit":"期早报","unit_note":"早报推送一期","total_minutes":51,"manual_minutes":25,"semi_minutes":0,"auto_minutes":26,"auto_saved_minutes":18,"residual_minutes":33,"weekly_usable_minutes":792,"pieces_per_day":4.8,"pieces_per_week":24,"bottleneck":"群内答疑与陪伴","bottleneck_share":49.0,"headroom_minutes":25,"pieces_per_week_if_optimized":51,"pieces_per_month":96}},"routine_channel":{"key":"routine_channel","name":"起居调养号主","sub":"作息起居 · 日常节律","desc":"起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。","themes":["起居"],"pool":["食养","体质","节气","经典","自省","边界","项目"],"is_channel":false,"is_cash":false,"material":35,"area":81,"area_note":"月产出件数 · 独占素材 35 条（起居）","rate":67,"quadrant":"pipeline_zone","quadrant_name":"流程区","quadrant_color":"yellow","actions":[{"name":"起居条目拆解与合规改写","state":"auto","state_label":"已进管线","tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"},{"name":"节律建议成稿撰写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""},{"name":"起居合规扫描","state":"auto","state_label":"已进管线","tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}],"manual_gap":["节律建议成稿撰写"],"chain_steps":[{"name":"起居条目拆解与合规改写","state":"auto","state_label":"已进管线","minutes":7,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":14.9,"bottleneck":false,"cum_minutes":7},{"name":"节律建议成稿撰写","state":"manual","state_label":"纯手工","minutes":35,"dep":"起居条目拆解与合规改写","tool":null,"tool_evidence":"","share":74.5,"bottleneck":true,"cum_minutes":42},{"name":"起居合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":10.6,"bottleneck":false,"cum_minutes":47}],"unit_econ":{"unit":"条图文","unit_note":"起居节律成品一条","total_minutes":47,"manual_minutes":35,"semi_minutes":0,"auto_minutes":12,"auto_saved_minutes":8,"residual_minutes":39,"weekly_usable_minutes":792,"pieces_per_day":4.1,"pieces_per_week":20,"bottleneck":"节律建议成稿撰写","bottleneck_share":74.5,"headroom_minutes":35,"pieces_per_week_if_optimized":55,"pieces_per_month":81}},"solar_channel":{"key":"solar_channel","name":"节气养生号主","sub":"二十四节气 · 时令起居","desc":"按节气推进的内容位次，素材随节气轮转消耗。","themes":["节气"],"pool":["食养","体质","经典","自省","起居","边界","项目"],"is_channel":false,"is_cash":false,"material":19,"area":67,"area_note":"月产出件数 · 独占素材 19 条（节气）","rate":75,"quadrant":"pipeline_zone","quadrant_name":"流程区","quadrant_color":"yellow","actions":[{"name":"节气条目生成","state":"auto","state_label":"已进管线","tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"},{"name":"经典原句配对","state":"auto","state_label":"已进管线","tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照"},{"name":"节气归位与出处核验","state":"auto","state_label":"已进管线","tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级"},{"name":"时令文案撰写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["时令文案撰写"],"chain_steps":[{"name":"节气条目生成","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":9.4,"bottleneck":false,"cum_minutes":6},{"name":"经典原句配对","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照","share":15.6,"bottleneck":false,"cum_minutes":16},{"name":"节气归位与出处核验","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":12.5,"bottleneck":false,"cum_minutes":24},{"name":"时令文案撰写","state":"manual","state_label":"纯手工","minutes":40,"dep":"节气归位与出处核验","tool":null,"tool_evidence":"","share":62.5,"bottleneck":true,"cum_minutes":64}],"unit_econ":{"unit":"条图文","unit_note":"时令成品文案一条","total_minutes":64,"manual_minutes":40,"semi_minutes":0,"auto_minutes":24,"auto_saved_minutes":17,"residual_minutes":47,"weekly_usable_minutes":792,"pieces_per_day":3.4,"pieces_per_week":17,"bottleneck":"时令文案撰写","bottleneck_share":62.5,"headroom_minutes":40,"pieces_per_week_if_optimized":42,"pieces_per_month":67}},"constitution_channel":{"key":"constitution_channel","name":"体质辨析号主","sub":"九种体质 · 倾向科普","desc":"围绕体质倾向做科普与自测互动的位次。","themes":["体质"],"pool":["食养","节气","经典","自省","起居","边界","项目"],"is_channel":false,"is_cash":false,"material":37,"area":66,"area_note":"月产出件数 · 独占素材 37 条（体质）","rate":80,"quadrant":"system_zone","quadrant_name":"系统区","quadrant_color":"green","actions":[{"name":"体质条目入库","state":"auto","state_label":"已进管线","tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"},{"name":"自测题库与工具生成","state":"auto","state_label":"已进管线","tool":"constitution_gen","tool_evidence":"build_constitution_test.py — 36 题九体质自测工具单文件生成"},{"name":"结果页红线校验","state":"auto","state_label":"已进管线","tool":"constitution_guard","tool_evidence":"validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"},{"name":"结果页溯源对齐","state":"auto","state_label":"已进管线","tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"},{"name":"体质科普文案撰写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["体质科普文案撰写"],"chain_steps":[{"name":"体质条目入库","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":9.0,"bottleneck":false,"cum_minutes":6},{"name":"自测题库与工具生成","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"constitution_gen","tool_evidence":"build_constitution_test.py — 36 题九体质自测工具单文件生成","share":11.9,"bottleneck":false,"cum_minutes":14},{"name":"结果页红线校验","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"constitution_guard","tool_evidence":"validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试","share":7.5,"bottleneck":false,"cum_minutes":19},{"name":"结果页溯源对齐","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":11.9,"bottleneck":false,"cum_minutes":27},{"name":"体质科普文案撰写","state":"manual","state_label":"纯手工","minutes":40,"dep":"结果页溯源对齐","tool":null,"tool_evidence":"","share":59.7,"bottleneck":true,"cum_minutes":67}],"unit_econ":{"unit":"条图文","unit_note":"体质科普成品一条","total_minutes":67,"manual_minutes":40,"semi_minutes":0,"auto_minutes":27,"auto_saved_minutes":19,"residual_minutes":48,"weekly_usable_minutes":792,"pieces_per_day":3.3,"pieces_per_week":17,"bottleneck":"体质科普文案撰写","bottleneck_share":59.7,"headroom_minutes":40,"pieces_per_week_if_optimized":40,"pieces_per_month":66}},"food_channel":{"key":"food_channel","name":"食养内容号主","sub":"一食一养 · 日常餐桌","desc":"以每日餐食为载体做内容输出，素材消耗量最大的位次。","themes":["食养"],"pool":["体质","节气","经典","自省","起居","边界","项目"],"is_channel":false,"is_cash":false,"material":79,"area":59,"area_note":"月产出件数 · 独占素材 79 条（食养）","rate":80,"quadrant":"system_zone","quadrant_name":"系统区","quadrant_color":"green","actions":[{"name":"条目拆解与合规改写","state":"auto","state_label":"已进管线","tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"},{"name":"去功效化重写","state":"auto","state_label":"已进管线","tool":"food_rewrite","tool_evidence":"rewrite_food_entries.py — 食养条目去功效化批量重写"},{"name":"食材目录归属核对","state":"auto","state_label":"已进管线","tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"},{"name":"出处回填至原句","state":"auto","state_label":"已进管线","tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级"},{"name":"成品文案撰写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["成品文案撰写"],"chain_steps":[{"name":"条目拆解与合规改写","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":8.1,"bottleneck":false,"cum_minutes":6},{"name":"去功效化重写","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"food_rewrite","tool_evidence":"rewrite_food_entries.py — 食养条目去功效化批量重写","share":10.8,"bottleneck":false,"cum_minutes":14},{"name":"食材目录归属核对","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":6.8,"bottleneck":false,"cum_minutes":19},{"name":"出处回填至原句","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":13.5,"bottleneck":false,"cum_minutes":29},{"name":"成品文案撰写","state":"manual","state_label":"纯手工","minutes":45,"dep":"去功效化重写","tool":null,"tool_evidence":"","share":60.8,"bottleneck":true,"cum_minutes":74}],"unit_econ":{"unit":"条图文","unit_note":"食养成品文案一条","total_minutes":74,"manual_minutes":45,"semi_minutes":0,"auto_minutes":29,"auto_saved_minutes":20,"residual_minutes":54,"weekly_usable_minutes":792,"pieces_per_day":2.9,"pieces_per_week":15,"bottleneck":"成品文案撰写","bottleneck_share":60.8,"headroom_minutes":45,"pieces_per_week_if_optimized":35,"pieces_per_month":59}},"classic_channel":{"key":"classic_channel","name":"经典研读博主","sub":"内经原文 · 逐条出处","desc":"做原文溯源与白话对照，素材少但对出处精度要求最高。","themes":["经典"],"pool":["食养","体质","节气","自省","起居","边界","项目"],"is_channel":false,"is_cash":false,"material":10,"area":34,"area_note":"月产出件数 · 独占素材 10 条（经典）","rate":50,"quadrant":"tool_zone","quadrant_name":"工具区","quadrant_color":"orange","actions":[{"name":"篇名与原句级出处核验","state":"auto","state_label":"已进管线","tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级"},{"name":"出处对照表维护","state":"auto","state_label":"已进管线","tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照"},{"name":"原典逐字比对（ctext/wikisource）","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""},{"name":"白话释读撰写","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["原典逐字比对（ctext/wikisource）","白话释读撰写"],"chain_steps":[{"name":"篇名与原句级出处核验","state":"auto","state_label":"已进管线","minutes":15,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":13.4,"bottleneck":false,"cum_minutes":15},{"name":"出处对照表维护","state":"auto","state_label":"已进管线","minutes":12,"dep":null,"tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照","share":10.7,"bottleneck":false,"cum_minutes":27},{"name":"原典逐字比对（ctext/wikisource）","state":"manual","state_label":"纯手工","minutes":35,"dep":null,"tool":null,"tool_evidence":"","share":31.2,"bottleneck":true,"cum_minutes":62},{"name":"白话释读撰写","state":"manual","state_label":"纯手工","minutes":50,"dep":"原典逐字比对（ctext/wikisource）","tool":null,"tool_evidence":"","share":44.6,"bottleneck":true,"cum_minutes":112}],"unit_econ":{"unit":"篇释读","unit_note":"原典白话释读一篇","total_minutes":112,"manual_minutes":85,"semi_minutes":0,"auto_minutes":27,"auto_saved_minutes":19,"residual_minutes":93,"weekly_usable_minutes":792,"pieces_per_day":1.7,"pieces_per_week":9,"bottleneck":"白话释读撰写","bottleneck_share":44.6,"headroom_minutes":50,"pieces_per_week_if_optimized":14,"pieces_per_month":34}},"monetize":{"key":"monetize","name":"私域变现主","sub":"会员订阅 · 付费社群","desc":"唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。","themes":["边界","项目"],"pool":["食养","体质","节气","经典","自省","起居"],"is_channel":false,"is_cash":true,"material":13,"area":30,"area_note":"月产出件数 · 独占素材 13 条（边界 + 项目）","rate":30,"quadrant":"tool_zone","quadrant_name":"工具区","quadrant_color":"orange","actions":[{"name":"会员权益结构设计","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""},{"name":"订阅内容排期编排","state":"semi","state_label":"半自动","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"付费物料合规校验","state":"auto","state_label":"已进管线","tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"},{"name":"会员答疑与陪伴","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""},{"name":"订阅续费与退订处理","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["会员权益结构设计","会员答疑与陪伴","订阅续费与退订处理"],"chain_steps":[{"name":"会员权益结构设计","state":"manual","state_label":"纯手工","minutes":40,"dep":null,"tool":null,"tool_evidence":"","share":35.4,"bottleneck":true,"cum_minutes":40},{"name":"订阅内容排期编排","state":"semi","state_label":"半自动","minutes":20,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":17.7,"bottleneck":false,"cum_minutes":60},{"name":"付费物料合规校验","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":7.1,"bottleneck":false,"cum_minutes":68},{"name":"会员答疑与陪伴","state":"manual","state_label":"纯手工","minutes":30,"dep":null,"tool":null,"tool_evidence":"","share":26.5,"bottleneck":true,"cum_minutes":98},{"name":"订阅续费与退订处理","state":"manual","state_label":"纯手工","minutes":15,"dep":"会员答疑与陪伴","tool":null,"tool_evidence":"","share":13.3,"bottleneck":false,"cum_minutes":113}],"unit_econ":{"unit":"次交付","unit_note":"会员订阅交付与答疑一次","total_minutes":113,"manual_minutes":85,"semi_minutes":20,"auto_minutes":8,"auto_saved_minutes":6,"residual_minutes":107,"weekly_usable_minutes":792,"pieces_per_day":1.5,"pieces_per_week":7,"bottleneck":"会员权益结构设计","bottleneck_share":35.4,"headroom_minutes":40,"pieces_per_week_if_optimized":10,"pieces_per_month":30}},"content_dual":{"key":"content_dual","name":"短视频图文内容主","sub":"口播成片 · 图文笔记","desc":"成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。","themes":[],"pool":["食养","节气","体质"],"is_channel":true,"is_cash":false,"material":0,"area":26,"area_note":"月产出件数（工序链推导）","rate":57,"quadrant":"pipeline_zone","quadrant_name":"流程区","quadrant_color":"yellow","actions":[{"name":"选题素材抽取","state":"auto","state_label":"已进管线","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"脚本初稿生成","state":"semi","state_label":"半自动","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"配图文案初稿生成","state":"semi","state_label":"半自动","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"合规扫描与改写","state":"auto","state_label":"已进管线","tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"},{"name":"素材溯源核对","state":"auto","state_label":"已进管线","tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"},{"name":"口播表达与演绎","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""},{"name":"成稿润色","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["口播表达与演绎","成稿润色"],"chain_steps":[{"name":"选题素材抽取","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":7.2,"bottleneck":false,"cum_minutes":10},{"name":"脚本初稿生成","state":"semi","state_label":"半自动","minutes":18,"dep":"选题素材抽取","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":12.9,"bottleneck":false,"cum_minutes":28},{"name":"配图文案初稿生成","state":"semi","state_label":"半自动","minutes":15,"dep":"选题素材抽取","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":10.8,"bottleneck":false,"cum_minutes":43},{"name":"合规扫描与改写","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":5.8,"bottleneck":false,"cum_minutes":51},{"name":"素材溯源核对","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":5.8,"bottleneck":false,"cum_minutes":59},{"name":"口播表达与演绎","state":"manual","state_label":"纯手工","minutes":50,"dep":"合规扫描与改写","tool":null,"tool_evidence":"","share":36.0,"bottleneck":true,"cum_minutes":109},{"name":"成稿润色","state":"manual","state_label":"纯手工","minutes":30,"dep":"素材溯源核对","tool":null,"tool_evidence":"","share":21.6,"bottleneck":false,"cum_minutes":139}],"unit_econ":{"unit":"条成品","unit_note":"短视频或图文成品一条","total_minutes":139,"manual_minutes":80,"semi_minutes":33,"auto_minutes":26,"auto_saved_minutes":18,"residual_minutes":121,"weekly_usable_minutes":792,"pieces_per_day":1.3,"pieces_per_week":7,"bottleneck":"口播表达与演绎","bottleneck_share":36.0,"headroom_minutes":50,"pieces_per_week_if_optimized":9,"pieces_per_month":26}},"course_teacher":{"key":"course_teacher","name":"线上课程讲师","sub":"体系课 · 直播带教","desc":"把素材组织成课程结构的位次。","themes":[],"pool":["起居","食养","经典"],"is_channel":true,"is_cash":false,"material":0,"area":22,"area_note":"月产出件数（工序链推导）","rate":50,"quadrant":"tool_zone","quadrant_name":"工具区","quadrant_color":"orange","actions":[{"name":"课程大纲素材编排","state":"semi","state_label":"半自动","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"讲义初稿生成","state":"semi","state_label":"半自动","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"},{"name":"合规扫描","state":"auto","state_label":"已进管线","tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"},{"name":"授课讲授与答疑","state":"manual","state_label":"纯手工","tool":null,"tool_evidence":""}],"manual_gap":["授课讲授与答疑"],"chain_steps":[{"name":"课程大纲素材编排","state":"semi","state_label":"半自动","minutes":45,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":31.0,"bottleneck":true,"cum_minutes":45},{"name":"讲义初稿生成","state":"semi","state_label":"半自动","minutes":35,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":24.1,"bottleneck":false,"cum_minutes":80},{"name":"合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":3.4,"bottleneck":false,"cum_minutes":85},{"name":"授课讲授与答疑","state":"manual","state_label":"纯手工","minutes":60,"dep":"讲义初稿生成","tool":null,"tool_evidence":"","share":41.4,"bottleneck":true,"cum_minutes":145}],"unit_econ":{"unit":"节课","unit_note":"直播授课一节","total_minutes":145,"manual_minutes":60,"semi_minutes":80,"auto_minutes":5,"auto_saved_minutes":4,"residual_minutes":141,"weekly_usable_minutes":792,"pieces_per_day":1.1,"pieces_per_week":6,"bottleneck":"授课讲授与答疑","bottleneck_share":41.4,"headroom_minutes":60,"pieces_per_week_if_optimized":8,"pieces_per_month":22}}},"order":["self_reflect","community","routine_channel","solar_channel","constitution_channel","food_channel","classic_channel","monetize","content_dual","course_teacher"],"chains":{"food_channel":{"unit":"条图文","unit_note":"食养成品文案一条","steps":[{"name":"条目拆解与合规改写","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":8.1,"bottleneck":false,"cum_minutes":6},{"name":"去功效化重写","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"food_rewrite","tool_evidence":"rewrite_food_entries.py — 食养条目去功效化批量重写","share":10.8,"bottleneck":false,"cum_minutes":14},{"name":"食材目录归属核对","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":6.8,"bottleneck":false,"cum_minutes":19},{"name":"出处回填至原句","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":13.5,"bottleneck":false,"cum_minutes":29},{"name":"成品文案撰写","state":"manual","state_label":"纯手工","minutes":45,"dep":"去功效化重写","tool":null,"tool_evidence":"","share":60.8,"bottleneck":true,"cum_minutes":74}],"unit_econ":{"unit":"条图文","unit_note":"食养成品文案一条","total_minutes":74,"manual_minutes":45,"semi_minutes":0,"auto_minutes":29,"auto_saved_minutes":20,"residual_minutes":54,"weekly_usable_minutes":792,"pieces_per_day":2.9,"pieces_per_week":15,"bottleneck":"成品文案撰写","bottleneck_share":60.8,"headroom_minutes":45,"pieces_per_week_if_optimized":35,"pieces_per_month":59}},"solar_channel":{"unit":"条图文","unit_note":"时令成品文案一条","steps":[{"name":"节气条目生成","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":9.4,"bottleneck":false,"cum_minutes":6},{"name":"经典原句配对","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照","share":15.6,"bottleneck":false,"cum_minutes":16},{"name":"节气归位与出处核验","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":12.5,"bottleneck":false,"cum_minutes":24},{"name":"时令文案撰写","state":"manual","state_label":"纯手工","minutes":40,"dep":"节气归位与出处核验","tool":null,"tool_evidence":"","share":62.5,"bottleneck":true,"cum_minutes":64}],"unit_econ":{"unit":"条图文","unit_note":"时令成品文案一条","total_minutes":64,"manual_minutes":40,"semi_minutes":0,"auto_minutes":24,"auto_saved_minutes":17,"residual_minutes":47,"weekly_usable_minutes":792,"pieces_per_day":3.4,"pieces_per_week":17,"bottleneck":"时令文案撰写","bottleneck_share":62.5,"headroom_minutes":40,"pieces_per_week_if_optimized":42,"pieces_per_month":67}},"constitution_channel":{"unit":"条图文","unit_note":"体质科普成品一条","steps":[{"name":"体质条目入库","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":9.0,"bottleneck":false,"cum_minutes":6},{"name":"自测题库与工具生成","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"constitution_gen","tool_evidence":"build_constitution_test.py — 36 题九体质自测工具单文件生成","share":11.9,"bottleneck":false,"cum_minutes":14},{"name":"结果页红线校验","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"constitution_guard","tool_evidence":"validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试","share":7.5,"bottleneck":false,"cum_minutes":19},{"name":"结果页溯源对齐","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":11.9,"bottleneck":false,"cum_minutes":27},{"name":"体质科普文案撰写","state":"manual","state_label":"纯手工","minutes":40,"dep":"结果页溯源对齐","tool":null,"tool_evidence":"","share":59.7,"bottleneck":true,"cum_minutes":67}],"unit_econ":{"unit":"条图文","unit_note":"体质科普成品一条","total_minutes":67,"manual_minutes":40,"semi_minutes":0,"auto_minutes":27,"auto_saved_minutes":19,"residual_minutes":48,"weekly_usable_minutes":792,"pieces_per_day":3.3,"pieces_per_week":17,"bottleneck":"体质科普文案撰写","bottleneck_share":59.7,"headroom_minutes":40,"pieces_per_week_if_optimized":40,"pieces_per_month":66}},"classic_channel":{"unit":"篇释读","unit_note":"原典白话释读一篇","steps":[{"name":"篇名与原句级出处核验","state":"auto","state_label":"已进管线","minutes":15,"dep":null,"tool":"source_upgrade","tool_evidence":"upgrade_sources.py — 条目出处升级为篇名+原句级","share":13.4,"bottleneck":false,"cum_minutes":15},{"name":"出处对照表维护","state":"auto","state_label":"已进管线","minutes":12,"dep":null,"tool":"source_map","tool_evidence":"data/节气经典_出处对照表.md — 逐条原句出处对照","share":10.7,"bottleneck":false,"cum_minutes":27},{"name":"原典逐字比对（ctext/wikisource）","state":"manual","state_label":"纯手工","minutes":35,"dep":null,"tool":null,"tool_evidence":"","share":31.2,"bottleneck":true,"cum_minutes":62},{"name":"白话释读撰写","state":"manual","state_label":"纯手工","minutes":50,"dep":"原典逐字比对（ctext/wikisource）","tool":null,"tool_evidence":"","share":44.6,"bottleneck":true,"cum_minutes":112}],"unit_econ":{"unit":"篇释读","unit_note":"原典白话释读一篇","total_minutes":112,"manual_minutes":85,"semi_minutes":0,"auto_minutes":27,"auto_saved_minutes":19,"residual_minutes":93,"weekly_usable_minutes":792,"pieces_per_day":1.7,"pieces_per_week":9,"bottleneck":"白话释读撰写","bottleneck_share":44.6,"headroom_minutes":50,"pieces_per_week_if_optimized":14,"pieces_per_month":34}},"routine_channel":{"unit":"条图文","unit_note":"起居节律成品一条","steps":[{"name":"起居条目拆解与合规改写","state":"auto","state_label":"已进管线","minutes":7,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":14.9,"bottleneck":false,"cum_minutes":7},{"name":"节律建议成稿撰写","state":"manual","state_label":"纯手工","minutes":35,"dep":"起居条目拆解与合规改写","tool":null,"tool_evidence":"","share":74.5,"bottleneck":true,"cum_minutes":42},{"name":"起居合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":10.6,"bottleneck":false,"cum_minutes":47}],"unit_econ":{"unit":"条图文","unit_note":"起居节律成品一条","total_minutes":47,"manual_minutes":35,"semi_minutes":0,"auto_minutes":12,"auto_saved_minutes":8,"residual_minutes":39,"weekly_usable_minutes":792,"pieces_per_day":4.1,"pieces_per_week":20,"bottleneck":"节律建议成稿撰写","bottleneck_share":74.5,"headroom_minutes":35,"pieces_per_week_if_optimized":55,"pieces_per_month":81}},"self_reflect":{"unit":"条问答","unit_note":"自省问答一条","steps":[{"name":"自省条目入库","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"batch_build","tool_evidence":"build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成","share":14.6,"bottleneck":false,"cum_minutes":6},{"name":"每日一问生成","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":12.2,"bottleneck":false,"cum_minutes":11},{"name":"早报合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":12.2,"bottleneck":false,"cum_minutes":16},{"name":"问答撰写与改写","state":"manual","state_label":"纯手工","minutes":25,"dep":"早报合规扫描","tool":null,"tool_evidence":"","share":61.0,"bottleneck":true,"cum_minutes":41}],"unit_econ":{"unit":"条问答","unit_note":"自省问答一条","total_minutes":41,"manual_minutes":25,"semi_minutes":0,"auto_minutes":16,"auto_saved_minutes":11,"residual_minutes":30,"weekly_usable_minutes":792,"pieces_per_day":5.3,"pieces_per_week":26,"bottleneck":"问答撰写与改写","bottleneck_share":61.0,"headroom_minutes":25,"pieces_per_week_if_optimized":63,"pieces_per_month":106}},"content_dual":{"unit":"条成品","unit_note":"短视频或图文成品一条","steps":[{"name":"选题素材抽取","state":"auto","state_label":"已进管线","minutes":10,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":7.2,"bottleneck":false,"cum_minutes":10},{"name":"脚本初稿生成","state":"semi","state_label":"半自动","minutes":18,"dep":"选题素材抽取","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":12.9,"bottleneck":false,"cum_minutes":28},{"name":"配图文案初稿生成","state":"semi","state_label":"半自动","minutes":15,"dep":"选题素材抽取","tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":10.8,"bottleneck":false,"cum_minutes":43},{"name":"合规扫描与改写","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":5.8,"bottleneck":false,"cum_minutes":51},{"name":"素材溯源核对","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":5.8,"bottleneck":false,"cum_minutes":59},{"name":"口播表达与演绎","state":"manual","state_label":"纯手工","minutes":50,"dep":"合规扫描与改写","tool":null,"tool_evidence":"","share":36.0,"bottleneck":true,"cum_minutes":109},{"name":"成稿润色","state":"manual","state_label":"纯手工","minutes":30,"dep":"素材溯源核对","tool":null,"tool_evidence":"","share":21.6,"bottleneck":false,"cum_minutes":139}],"unit_econ":{"unit":"条成品","unit_note":"短视频或图文成品一条","total_minutes":139,"manual_minutes":80,"semi_minutes":33,"auto_minutes":26,"auto_saved_minutes":18,"residual_minutes":121,"weekly_usable_minutes":792,"pieces_per_day":1.3,"pieces_per_week":7,"bottleneck":"口播表达与演绎","bottleneck_share":36.0,"headroom_minutes":50,"pieces_per_week_if_optimized":9,"pieces_per_month":26}},"course_teacher":{"unit":"节课","unit_note":"直播授课一节","steps":[{"name":"课程大纲素材编排","state":"semi","state_label":"半自动","minutes":45,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":31.0,"bottleneck":true,"cum_minutes":45},{"name":"讲义初稿生成","state":"semi","state_label":"半自动","minutes":35,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":24.1,"bottleneck":false,"cum_minutes":80},{"name":"合规扫描","state":"auto","state_label":"已进管线","minutes":5,"dep":null,"tool":"brief_scan","tool_evidence":"build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）","share":3.4,"bottleneck":false,"cum_minutes":85},{"name":"授课讲授与答疑","state":"manual","state_label":"纯手工","minutes":60,"dep":"讲义初稿生成","tool":null,"tool_evidence":"","share":41.4,"bottleneck":true,"cum_minutes":145}],"unit_econ":{"unit":"节课","unit_note":"直播授课一节","total_minutes":145,"manual_minutes":60,"semi_minutes":80,"auto_minutes":5,"auto_saved_minutes":4,"residual_minutes":141,"weekly_usable_minutes":792,"pieces_per_day":1.1,"pieces_per_week":6,"bottleneck":"授课讲授与答疑","bottleneck_share":41.4,"headroom_minutes":60,"pieces_per_week_if_optimized":8,"pieces_per_month":22}},"community":{"unit":"期早报","unit_note":"早报推送一期","steps":[{"name":"早报每日生成","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":15.7,"bottleneck":false,"cum_minutes":8},{"name":"早报推送分发","state":"auto","state_label":"已进管线","minutes":12,"dep":null,"tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检","share":23.5,"bottleneck":false,"cum_minutes":20},{"name":"推送前合规自检","state":"auto","state_label":"已进管线","minutes":6,"dep":null,"tool":"brief_push","tool_evidence":"push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检","share":11.8,"bottleneck":false,"cum_minutes":26},{"name":"群内答疑与陪伴","state":"manual","state_label":"纯手工","minutes":25,"dep":"早报推送分发","tool":null,"tool_evidence":"","share":49.0,"bottleneck":true,"cum_minutes":51}],"unit_econ":{"unit":"期早报","unit_note":"早报推送一期","total_minutes":51,"manual_minutes":25,"semi_minutes":0,"auto_minutes":26,"auto_saved_minutes":18,"residual_minutes":33,"weekly_usable_minutes":792,"pieces_per_day":4.8,"pieces_per_week":24,"bottleneck":"群内答疑与陪伴","bottleneck_share":49.0,"headroom_minutes":25,"pieces_per_week_if_optimized":51,"pieces_per_month":96}},"monetize":{"unit":"次交付","unit_note":"会员订阅交付与答疑一次","steps":[{"name":"会员权益结构设计","state":"manual","state_label":"纯手工","minutes":40,"dep":null,"tool":null,"tool_evidence":"","share":35.4,"bottleneck":true,"cum_minutes":40},{"name":"订阅内容排期编排","state":"semi","state_label":"半自动","minutes":20,"dep":null,"tool":"brief_gen","tool_evidence":"build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）","share":17.7,"bottleneck":false,"cum_minutes":60},{"name":"付费物料合规校验","state":"auto","state_label":"已进管线","minutes":8,"dep":null,"tool":"ssot_guard","tool_evidence":"validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告","share":7.1,"bottleneck":false,"cum_minutes":68},{"name":"会员答疑与陪伴","state":"manual","state_label":"纯手工","minutes":30,"dep":null,"tool":null,"tool_evidence":"","share":26.5,"bottleneck":true,"cum_minutes":98},{"name":"订阅续费与退订处理","state":"manual","state_label":"纯手工","minutes":15,"dep":"会员答疑与陪伴","tool":null,"tool_evidence":"","share":13.3,"bottleneck":false,"cum_minutes":113}],"unit_econ":{"unit":"次交付","unit_note":"会员订阅交付与答疑一次","total_minutes":113,"manual_minutes":85,"semi_minutes":20,"auto_minutes":8,"auto_saved_minutes":6,"residual_minutes":107,"weekly_usable_minutes":792,"pieces_per_day":1.5,"pieces_per_week":7,"bottleneck":"会员权益结构设计","bottleneck_share":35.4,"headroom_minutes":40,"pieces_per_week_if_optimized":10,"pieces_per_month":30}}},"roadmap":[{"phase":1,"title":"立契约 · 让素材可信","window":"第 1–30 天","goal":"把养生知识表做成唯一真相源，每条可溯源、每条过红线。","tasks":[["建立 SSOT 登记表，明确唯一写入者","已落地","docs/契约层.md"],["知识表补出处至篇名级，节气条目到原句级","已落地","upgrade_sources.py"],["10 类合规校验规则跑通，全表 0 错误","已落地","validate_ssot.py"],["食养条目去功效化重写，杜绝症状指向","已落地","rewrite_food_entries.py"],["节气与经典条目建立出处对照表","已落地","data/节气经典_出处对照表.md"]],"gate":"SSOT 校验 0 错误 0 警告，且任一条目可在 30 秒内回溯出处","exit_signal":"校验器有非零错误，或仍存在无法回溯出处的条目"},{"phase":2,"title":"上管线 · 把重复接进脚本","window":"第 31–60 天","goal":"重复搬运型环节全部进管线，人力集中到判断与表达。","tasks":[["早报六卡自动生成，含合规扫描","已落地","build_daily_brief.py"],["早报推送云文档，上传前十项自检","已落地","push_brief_to_docs.py"],["体质自测工具生成，结果页红线三层校验","已落地","build_constitution_test.py"],["选题抽取、脚本初稿接入早报管线","已落地","build_daily_brief.py"],["逐位次锁定瓶颈工序并安排工具化","待推进","本表瓶颈一栏"]],"gate":"选定一个位次，其手工环节仅剩表达与判断类，且瓶颈工序工时占比降至 25% 以下","exit_signal":"瓶颈工序仍占单件工时 25% 以上，说明提效未落到点上"},{"phase":3,"title":"建闭环 · 产出分发复盘成回路","window":"第 61–90 天","goal":"内容产出、自动分发与效果回看连成可迭代的闭环。","tasks":[["分发通道固化到云文档空间","已落地","早报推送通道_腾讯文档.md"],["案例库沉淀可对外展示的成品","已落地","生存地图案例页"],["按位次建立产出节奏与产能基线","待推进","本表单位经济"],["沉淀可复用模板，形成第二内容源","待推进","—"],["建立回流机制：读者问题回灌素材表","待推进","—"]],"gate":"连续 4 周按计划节奏产出，且每期产出都带出处与免责","exit_signal":"无法维持连续 4 周节奏，说明产能基线定得过高"},{"phase":4,"title":"收现金 · 把陪伴转成订阅","window":"第 91–180 天","goal":"线下交付停办后的唯一现金路径：内容拉新 → 私域沉淀 → 订阅。先跑通三环的通路判据，再谈规模。","tasks":[["会员权益结构设计与边界自检","待推进","本表变现链路第三环"],["订阅内容排期接入早报管线","待推进","build_daily_brief.py"],["付费物料合规校验接入订阅流程","待推进","ssot_guard"],["记录续订与退订，建立留存口径","待推进","—"],["按真实数据回填三环通路判据","待推进","本表变现链路"]],"gate":"三环各有连续 4 周的真实记录，且续订意愿能被统计，而不只是统计一次付费","exit_signal":"只能统计一次性成交、统计不出续订意愿，说明陪伴关系尚未成立，此时扩量只会放大流失"}],"risks":[{"name":"素材见底","indicator":"主素材池可用条数","threshold":"剩余可用条数 < 3 个月产出量","why":"素材耗尽则被迫降质或停更，位次失去内容供给","action":"扩池：接入起居、自省、节气交叉取材，或把长文拆成系列"},{"name":"瓶颈固化","indicator":"单件工时中最大工序占比","threshold":"> 25% 且为手工环节","why":"一道工序吃掉四分之一精力，是产能天花板的真实所在","action":"对该工序做工具化或减法：能否删、并、改为模板复用"},{"name":"合规反噬","indicator":"校验器错误数 / 注入拦截率","threshold":"错误数 > 0，或拦截率 < 100%","why":"一条越界内容可让整个内容位次失去信任，且传播不可撤回","action":"停更排查，先修校验器再恢复产出；红线不做例外"},{"name":"产能透支","indicator":"周产出件数的残余工时占周可用工时比","threshold":"> 100%（排期已超可用工时）","why":"长期超载会牺牲质量，最终触发合规问题或断更","action":"降频而非降质：把节奏从每日改为隔日，保住单件水准"},{"name":"单点依赖","indicator":"位次中纯手工动作数","threshold":"≥ 2 个且都不可迁移","why":"一人公司的产能随人状态波动，单点依赖会让排期连续失真","action":"把其中一个改为半自动：脚本出初稿，人只定稿"},{"name":"口径漂移","indicator":"面积口径与工具化率是否仍可回溯","threshold":"任一项无法回溯到数据层","why":"口径一旦不可核验，地图就成了自我说服，决策失去依据","action":"停用相关结论，回到 SSOT 重建口径后再算"}],"funnel":[{"stage":1,"badge":"内容层","title":"公开内容位次","why":"拉新入口","cards":[{"k":"承载位次","n":"短视频图文 · 图文笔记 · 课程","d":"全部为公开内容位次，承担拉新与信任建立，不直接收费。","m":"工具化率 50%–67%"},{"k":"合规前置","n":"每条成品带出处与免责","d":"内容先过校验器再发布，只写体质倾向与生活原则，不写病名、不承诺效果、不限定特定人群。","m":"红线 22 项校验"}]},{"stage":2,"badge":"沉淀层","title":"社群私域主","why":"把注意力变成可反复触达的关系","cards":[{"k":"承载位次","n":"社群私域主 · 早报推送","d":"早报每日自动生成并推送，是持续触达的载体；订阅内容排期也由此承接。","m":"早报六卡 · 自动生成即校验"},{"k":"触达依据","n":"体质自测工具","d":"自测结果页引用知识表原文，用户带着自己的体质倾向进入社群。","m":"36 题 · 9 体质"}]},{"stage":3,"badge":"现金出口","title":"私域变现主","why":"唯一产生现金的环节","cards":[{"k":"承接位次","n":"会员订阅 · 付费社群","d":"承接前两层沉淀的关系，把长期陪伴转为付费订阅权益。","m":"月交付 30 次（工序链推导）"},{"k":"边界约束","n":"边界与项目条目归此位次","d":"对外物料先过合规校验；项目类条目仅作知识素材介绍，不构成服务承诺。","m":"付费物料合规校验已进管线"}]}],"funnel_gates":[["公开内容层","连续 4 周按节奏产出，且每条带出处与免责","内容供给不稳，后面两层就没有原料"],["私域沉淀层","自测工具的使用者中，有明确比例进入早报订阅并留下体质记录","没有留下个人画像的读者，付费时无法承接"],["现金出口层","订阅者的续订意愿能被记录，而非只统计一次付费","只做一次性成交，无法判断陪伴关系是否成立"]],"config":{"weekly_focus_hours":24,"bottleneck_threshold":25,"effective_factor":0.55,"time_basis":"口径值（非实测），可按真实记录覆盖"},"stats":{"素材总条数":205,"内容主题数":8,"节气覆盖":"24/24","体质分类数":12,"倾向标签数":3,"校验规则类":10,"红线注入测试":"14/14 拦截","主题分布":{"体质":37,"起居":35,"食养":79,"节气":19,"经典":10,"项目":8,"自省":12,"边界":5}}};
+let simHours = 20, simOpt = 40, simAuto = 40;
+
+const DATA = {"roles": {"self_reflect": {"key": "self_reflect", "name": "自省心性号主", "sub": "每日一问 · 情绪起居", "desc": "以自省问答为载体的内容位次。", "themes": ["自省"], "pool": ["食养", "体质", "节气", "经典", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 12, "area": 106, "area_note": "月产出件数 · 独占素材 12 条（自省）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["问答撰写与改写"], "chain_steps": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "minutes": 6, "dep": null, "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成", "share": 14.6, "bottleneck": false, "cum_minutes": 6}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 12.2, "bottleneck": false, "cum_minutes": 11}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）", "share": 12.2, "bottleneck": false, "cum_minutes": 16}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "minutes": 25, "dep": "早报合规扫描", "tool": null, "tool_evidence": "", "share": 61.0, "bottleneck": true, "cum_minutes": 41}], "unit_econ": {"unit": "条问答", "unit_note": "自省问答一条", "total_minutes": 41, "manual_minutes": 25, "semi_minutes": 0, "auto_minutes": 16, "auto_saved_minutes": 11, "residual_minutes": 30, "weekly_usable_minutes": 792, "pieces_per_day": 5.3, "pieces_per_week": 26, "bottleneck": "问答撰写与改写", "bottleneck_share": 61.0, "headroom_minutes": 25, "pieces_per_week_if_optimized": 63, "pieces_per_month": 106}}, "community": {"key": "community", "name": "社群私域主", "sub": "早报分发 · 长期陪伴", "desc": "负责长期陪伴与内容分发，是转化链条的末端。", "themes": [], "pool": ["体质", "边界"], "is_channel": true, "is_cash": false, "material": 0, "area": 96, "area_note": "月产出件数（工序链推导）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["群内答疑与陪伴"], "chain_steps": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 15.7, "bottleneck": false, "cum_minutes": 8}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "minutes": 12, "dep": null, "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检", "share": 23.5, "bottleneck": false, "cum_minutes": 20}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "minutes": 6, "dep": null, "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检", "share": 11.8, "bottleneck": false, "cum_minutes": 26}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "minutes": 25, "dep": "早报推送分发", "tool": null, "tool_evidence": "", "share": 49.0, "bottleneck": true, "cum_minutes": 51}], "unit_econ": {"unit": "期早报", "unit_note": "早报推送一期", "total_minutes": 51, "manual_minutes": 25, "semi_minutes": 0, "auto_minutes": 26, "auto_saved_minutes": 18, "residual_minutes": 33, "weekly_usable_minutes": 792, "pieces_per_day": 4.8, "pieces_per_week": 24, "bottleneck": "群内答疑与陪伴", "bottleneck_share": 49.0, "headroom_minutes": 25, "pieces_per_week_if_optimized": 51, "pieces_per_month": 96}}, "routine_channel": {"key": "routine_channel", "name": "起居调养号主", "sub": "作息起居 · 日常节律", "desc": "起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。", "themes": ["起居"], "pool": ["食养", "体质", "节气", "经典", "自省", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 35, "area": 81, "area_note": "月产出件数 · 独占素材 35 条（起居）", "rate": 67, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "manual_gap": ["节律建议成稿撰写"], "chain_steps": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "minutes": 7, "dep": null, "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成", "share": 14.9, "bottleneck": false, "cum_minutes": 7}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "minutes": 35, "dep": "起居条目拆解与合规改写", "tool": null, "tool_evidence": "", "share": 74.5, "bottleneck": true, "cum_minutes": 42}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）", "share": 10.6, "bottleneck": false, "cum_minutes": 47}], "unit_econ": {"unit": "条图文", "unit_note": "起居节律成品一条", "total_minutes": 47, "manual_minutes": 35, "semi_minutes": 0, "auto_minutes": 12, "auto_saved_minutes": 8, "residual_minutes": 39, "weekly_usable_minutes": 792, "pieces_per_day": 4.1, "pieces_per_week": 20, "bottleneck": "节律建议成稿撰写", "bottleneck_share": 74.5, "headroom_minutes": 35, "pieces_per_week_if_optimized": 55, "pieces_per_month": 81}}, "solar_channel": {"key": "solar_channel", "name": "节气养生号主", "sub": "二十四节气 · 时令起居", "desc": "按节气推进的内容位次，素材随节气轮转消耗。", "themes": ["节气"], "pool": ["食养", "体质", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 19, "area": 67, "area_note": "月产出件数 · 独占素材 19 条（节气）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["时令文案撰写"], "chain_steps": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "minutes": 6, "dep": null, "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成", "share": 9.4, "bottleneck": false, "cum_minutes": 6}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "minutes": 10, "dep": null, "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照", "share": 15.6, "bottleneck": false, "cum_minutes": 16}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级", "share": 12.5, "bottleneck": false, "cum_minutes": 24}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "minutes": 40, "dep": "节气归位与出处核验", "tool": null, "tool_evidence": "", "share": 62.5, "bottleneck": true, "cum_minutes": 64}], "unit_econ": {"unit": "条图文", "unit_note": "时令成品文案一条", "total_minutes": 64, "manual_minutes": 40, "semi_minutes": 0, "auto_minutes": 24, "auto_saved_minutes": 17, "residual_minutes": 47, "weekly_usable_minutes": 792, "pieces_per_day": 3.4, "pieces_per_week": 17, "bottleneck": "时令文案撰写", "bottleneck_share": 62.5, "headroom_minutes": 40, "pieces_per_week_if_optimized": 42, "pieces_per_month": 67}}, "constitution_channel": {"key": "constitution_channel", "name": "体质辨析号主", "sub": "九种体质 · 倾向科普", "desc": "围绕体质倾向做科普与自测互动的位次。", "themes": ["体质"], "pool": ["食养", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 37, "area": 66, "area_note": "月产出件数 · 独占素材 37 条（体质）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成"}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["体质科普文案撰写"], "chain_steps": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "minutes": 6, "dep": null, "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成", "share": 9.0, "bottleneck": false, "cum_minutes": 6}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成", "share": 11.9, "bottleneck": false, "cum_minutes": 14}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试", "share": 7.5, "bottleneck": false, "cum_minutes": 19}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告", "share": 11.9, "bottleneck": false, "cum_minutes": 27}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "minutes": 40, "dep": "结果页溯源对齐", "tool": null, "tool_evidence": "", "share": 59.7, "bottleneck": true, "cum_minutes": 67}], "unit_econ": {"unit": "条图文", "unit_note": "体质科普成品一条", "total_minutes": 67, "manual_minutes": 40, "semi_minutes": 0, "auto_minutes": 27, "auto_saved_minutes": 19, "residual_minutes": 48, "weekly_usable_minutes": 792, "pieces_per_day": 3.3, "pieces_per_week": 17, "bottleneck": "体质科普文案撰写", "bottleneck_share": 59.7, "headroom_minutes": 40, "pieces_per_week_if_optimized": 40, "pieces_per_month": 66}}, "food_channel": {"key": "food_channel", "name": "食养内容号主", "sub": "一食一养 · 日常餐桌", "desc": "以每日餐食为载体做内容输出，素材消耗量最大的位次。", "themes": ["食养"], "pool": ["体质", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 79, "area": 59, "area_note": "月产出件数 · 独占素材 79 条（食养）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写"}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["成品文案撰写"], "chain_steps": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "minutes": 6, "dep": null, "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成", "share": 8.1, "bottleneck": false, "cum_minutes": 6}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写", "share": 10.8, "bottleneck": false, "cum_minutes": 14}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告", "share": 6.8, "bottleneck": false, "cum_minutes": 19}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "minutes": 10, "dep": null, "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级", "share": 13.5, "bottleneck": false, "cum_minutes": 29}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "minutes": 45, "dep": "去功效化重写", "tool": null, "tool_evidence": "", "share": 60.8, "bottleneck": true, "cum_minutes": 74}], "unit_econ": {"unit": "条图文", "unit_note": "食养成品文案一条", "total_minutes": 74, "manual_minutes": 45, "semi_minutes": 0, "auto_minutes": 29, "auto_saved_minutes": 20, "residual_minutes": 54, "weekly_usable_minutes": 792, "pieces_per_day": 2.9, "pieces_per_week": 15, "bottleneck": "成品文案撰写", "bottleneck_share": 60.8, "headroom_minutes": 45, "pieces_per_week_if_optimized": 35, "pieces_per_month": 59}}, "classic_channel": {"key": "classic_channel", "name": "经典研读博主", "sub": "内经原文 · 逐条出处", "desc": "做原文溯源与白话对照，素材少但对出处精度要求最高。", "themes": ["经典"], "pool": ["食养", "体质", "节气", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 10, "area": 34, "area_note": "月产出件数 · 独占素材 10 条（经典）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"], "chain_steps": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "minutes": 15, "dep": null, "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级", "share": 13.4, "bottleneck": false, "cum_minutes": 15}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "minutes": 12, "dep": null, "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照", "share": 10.7, "bottleneck": false, "cum_minutes": 27}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "minutes": 35, "dep": null, "tool": null, "tool_evidence": "", "share": 31.2, "bottleneck": true, "cum_minutes": 62}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "minutes": 50, "dep": "原典逐字比对（ctext/wikisource）", "tool": null, "tool_evidence": "", "share": 44.6, "bottleneck": true, "cum_minutes": 112}], "unit_econ": {"unit": "篇释读", "unit_note": "原典白话释读一篇", "total_minutes": 112, "manual_minutes": 85, "semi_minutes": 0, "auto_minutes": 27, "auto_saved_minutes": 19, "residual_minutes": 93, "weekly_usable_minutes": 792, "pieces_per_day": 1.7, "pieces_per_week": 9, "bottleneck": "白话释读撰写", "bottleneck_share": 44.6, "headroom_minutes": 50, "pieces_per_week_if_optimized": 14, "pieces_per_month": 34}}, "monetize": {"key": "monetize", "name": "私域变现主", "sub": "会员订阅 · 付费社群", "desc": "唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。", "themes": ["边界", "项目"], "pool": ["食养", "体质", "节气", "经典", "自省", "起居"], "is_channel": false, "is_cash": true, "material": 13, "area": 30, "area_note": "月产出件数 · 独占素材 13 条（边界 + 项目）", "rate": 30, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"], "chain_steps": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "minutes": 40, "dep": null, "tool": null, "tool_evidence": "", "share": 35.4, "bottleneck": true, "cum_minutes": 40}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "minutes": 20, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 17.7, "bottleneck": false, "cum_minutes": 60}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告", "share": 7.1, "bottleneck": false, "cum_minutes": 68}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "minutes": 30, "dep": null, "tool": null, "tool_evidence": "", "share": 26.5, "bottleneck": true, "cum_minutes": 98}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "minutes": 15, "dep": "会员答疑与陪伴", "tool": null, "tool_evidence": "", "share": 13.3, "bottleneck": false, "cum_minutes": 113}], "unit_econ": {"unit": "次交付", "unit_note": "会员订阅交付与答疑一次", "total_minutes": 113, "manual_minutes": 85, "semi_minutes": 20, "auto_minutes": 8, "auto_saved_minutes": 6, "residual_minutes": 107, "weekly_usable_minutes": 792, "pieces_per_day": 1.5, "pieces_per_week": 7, "bottleneck": "会员权益结构设计", "bottleneck_share": 35.4, "headroom_minutes": 40, "pieces_per_week_if_optimized": 10, "pieces_per_month": 30}}, "content_dual": {"key": "content_dual", "name": "短视频图文内容主", "sub": "口播成片 · 图文笔记", "desc": "成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。", "themes": [], "pool": ["食养", "节气", "体质"], "is_channel": true, "is_cash": false, "material": 0, "area": 26, "area_note": "月产出件数（工序链推导）", "rate": 57, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["口播表达与演绎", "成稿润色"], "chain_steps": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "minutes": 10, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 7.2, "bottleneck": false, "cum_minutes": 10}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "minutes": 18, "dep": "选题素材抽取", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 12.9, "bottleneck": false, "cum_minutes": 28}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "minutes": 15, "dep": "选题素材抽取", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 10.8, "bottleneck": false, "cum_minutes": 43}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）", "share": 5.8, "bottleneck": false, "cum_minutes": 51}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "minutes": 8, "dep": null, "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告", "share": 5.8, "bottleneck": false, "cum_minutes": 59}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "minutes": 50, "dep": "合规扫描与改写", "tool": null, "tool_evidence": "", "share": 36.0, "bottleneck": true, "cum_minutes": 109}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "minutes": 30, "dep": "素材溯源核对", "tool": null, "tool_evidence": "", "share": 21.6, "bottleneck": false, "cum_minutes": 139}], "unit_econ": {"unit": "条成品", "unit_note": "短视频或图文成品一条", "total_minutes": 139, "manual_minutes": 80, "semi_minutes": 33, "auto_minutes": 26, "auto_saved_minutes": 18, "residual_minutes": 121, "weekly_usable_minutes": 792, "pieces_per_day": 1.3, "pieces_per_week": 7, "bottleneck": "口播表达与演绎", "bottleneck_share": 36.0, "headroom_minutes": 50, "pieces_per_week_if_optimized": 9, "pieces_per_month": 26}}, "course_teacher": {"key": "course_teacher", "name": "线上课程讲师", "sub": "体系课 · 直播带教", "desc": "把素材组织成课程结构的位次。", "themes": [], "pool": ["起居", "食养", "经典"], "is_channel": true, "is_cash": false, "material": 0, "area": 22, "area_note": "月产出件数（工序链推导）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["授课讲授与答疑"], "chain_steps": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "minutes": 45, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 31.0, "bottleneck": true, "cum_minutes": 45}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "minutes": 35, "dep": null, "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）", "share": 24.1, "bottleneck": false, "cum_minutes": 80}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "minutes": 5, "dep": null, "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）", "share": 3.4, "bottleneck": false, "cum_minutes": 85}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "minutes": 60, "dep": "讲义初稿生成", "tool": null, "tool_evidence": "", "share": 41.4, "bottleneck": true, "cum_minutes": 145}], "unit_econ": {"unit": "节课", "unit_note": "直播授课一节", "total_minutes": 145, "manual_minutes": 60, "semi_minutes": 80, "auto_minutes": 5, "auto_saved_minutes": 4, "residual_minutes": 141, "weekly_usable_minutes": 792, "pieces_per_day": 1.1, "pieces_per_week": 6, "bottleneck": "授课讲授与答疑", "bottleneck_share": 41.4, "headroom_minutes": 60, "pieces_per_week_if_optimized": 8, "pieces_per_month": 22}}}, "reports": {"food_channel": {"manual": {"role": {"key": "food_channel", "name": "食养内容号主", "sub": "一食一养 · 日常餐桌", "desc": "以每日餐食为载体做内容输出，素材消耗量最大的位次。", "themes": ["食养"], "pool": ["体质", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 79, "area": 0, "area_note": "月产出件数 · 独占素材 79 条（食养）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写"}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["成品文案撰写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["成品文案撰写"], "gap_text": "成品文案撰写 仍为纯手工环节。", "picks": [{"name": "条目拆解与合规改写", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「条目拆解与合规改写」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "food_channel", "name": "食养内容号主", "sub": "一食一养 · 日常餐桌", "desc": "以每日餐食为载体做内容输出，素材消耗量最大的位次。", "themes": ["食养"], "pool": ["体质", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 79, "area": 0, "area_note": "月产出件数 · 独占素材 79 条（食养）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写"}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["成品文案撰写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["成品文案撰写"], "gap_text": "成品文案撰写 仍为纯手工环节。", "picks": [{"name": "条目拆解与合规改写", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：rewrite_food_entries.py — 食养条目去功效化批量重写"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "food_channel", "name": "食养内容号主", "sub": "一食一养 · 日常餐桌", "desc": "以每日餐食为载体做内容输出，素材消耗量最大的位次。", "themes": ["食养"], "pool": ["体质", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 79, "area": 0, "area_note": "月产出件数 · 独占素材 79 条（食养）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写"}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["成品文案撰写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["成品文案撰写"], "gap_text": "成品文案撰写 仍为纯手工环节。", "picks": [{"name": "成品文案撰写", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "food_channel", "name": "食养内容号主", "sub": "一食一养 · 日常餐桌", "desc": "以每日餐食为载体做内容输出，素材消耗量最大的位次。", "themes": ["食养"], "pool": ["体质", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 79, "area": 0, "area_note": "月产出件数 · 独占素材 79 条（食养）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "去功效化重写", "state": "auto", "state_label": "已进管线", "tool": "food_rewrite", "tool_evidence": "rewrite_food_entries.py — 食养条目去功效化批量重写"}, {"name": "食材目录归属核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "出处回填至原句", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "成品文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["成品文案撰写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["成品文案撰写"], "gap_text": "成品文案撰写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "成品文案撰写", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "solar_channel": {"manual": {"role": {"key": "solar_channel", "name": "节气养生号主", "sub": "二十四节气 · 时令起居", "desc": "按节气推进的内容位次，素材随节气轮转消耗。", "themes": ["节气"], "pool": ["食养", "体质", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 19, "area": 0, "area_note": "月产出件数 · 独占素材 19 条（节气）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["时令文案撰写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["时令文案撰写"], "gap_text": "时令文案撰写 仍为纯手工环节。", "picks": [{"name": "节气条目生成", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「节气条目生成」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "solar_channel", "name": "节气养生号主", "sub": "二十四节气 · 时令起居", "desc": "按节气推进的内容位次，素材随节气轮转消耗。", "themes": ["节气"], "pool": ["食养", "体质", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 19, "area": 0, "area_note": "月产出件数 · 独占素材 19 条（节气）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["时令文案撰写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["时令文案撰写"], "gap_text": "时令文案撰写 仍为纯手工环节。", "picks": [{"name": "节气条目生成", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：data/节气经典_出处对照表.md — 逐条原句出处对照"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "solar_channel", "name": "节气养生号主", "sub": "二十四节气 · 时令起居", "desc": "按节气推进的内容位次，素材随节气轮转消耗。", "themes": ["节气"], "pool": ["食养", "体质", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 19, "area": 0, "area_note": "月产出件数 · 独占素材 19 条（节气）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["时令文案撰写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["时令文案撰写"], "gap_text": "时令文案撰写 仍为纯手工环节。", "picks": [{"name": "时令文案撰写", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "solar_channel", "name": "节气养生号主", "sub": "二十四节气 · 时令起居", "desc": "按节气推进的内容位次，素材随节气轮转消耗。", "themes": ["节气"], "pool": ["食养", "体质", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 19, "area": 0, "area_note": "月产出件数 · 独占素材 19 条（节气）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "节气条目生成", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "经典原句配对", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "节气归位与出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "时令文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["时令文案撰写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["时令文案撰写"], "gap_text": "时令文案撰写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "时令文案撰写", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "constitution_channel": {"manual": {"role": {"key": "constitution_channel", "name": "体质辨析号主", "sub": "九种体质 · 倾向科普", "desc": "围绕体质倾向做科普与自测互动的位次。", "themes": ["体质"], "pool": ["食养", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 37, "area": 0, "area_note": "月产出件数 · 独占素材 37 条（体质）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成"}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["体质科普文案撰写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["体质科普文案撰写"], "gap_text": "体质科普文案撰写 仍为纯手工环节。", "picks": [{"name": "体质条目入库", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「体质条目入库」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "constitution_channel", "name": "体质辨析号主", "sub": "九种体质 · 倾向科普", "desc": "围绕体质倾向做科普与自测互动的位次。", "themes": ["体质"], "pool": ["食养", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 37, "area": 0, "area_note": "月产出件数 · 独占素材 37 条（体质）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成"}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["体质科普文案撰写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["体质科普文案撰写"], "gap_text": "体质科普文案撰写 仍为纯手工环节。", "picks": [{"name": "体质条目入库", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_constitution_test.py — 36 题九体质自测工具单文件生成"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "constitution_channel", "name": "体质辨析号主", "sub": "九种体质 · 倾向科普", "desc": "围绕体质倾向做科普与自测互动的位次。", "themes": ["体质"], "pool": ["食养", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 37, "area": 0, "area_note": "月产出件数 · 独占素材 37 条（体质）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成"}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["体质科普文案撰写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["体质科普文案撰写"], "gap_text": "体质科普文案撰写 仍为纯手工环节。", "picks": [{"name": "体质科普文案撰写", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "constitution_channel", "name": "体质辨析号主", "sub": "九种体质 · 倾向科普", "desc": "围绕体质倾向做科普与自测互动的位次。", "themes": ["体质"], "pool": ["食养", "节气", "经典", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 37, "area": 0, "area_note": "月产出件数 · 独占素材 37 条（体质）", "rate": 80, "quadrant": "system_zone", "quadrant_name": "系统区", "quadrant_color": "green", "actions": [{"name": "体质条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "自测题库与工具生成", "state": "auto", "state_label": "已进管线", "tool": "constitution_gen", "tool_evidence": "build_constitution_test.py — 36 题九体质自测工具单文件生成"}, {"name": "结果页红线校验", "state": "auto", "state_label": "已进管线", "tool": "constitution_guard", "tool_evidence": "validate_constitution_html.py — 结果页红线三层校验 + 14 项注入测试"}, {"name": "结果页溯源对齐", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "体质科普文案撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["体质科普文案撰写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["体质科普文案撰写"], "gap_text": "体质科普文案撰写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "体质科普文案撰写", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "classic_channel": {"manual": {"role": {"key": "classic_channel", "name": "经典研读博主", "sub": "内经原文 · 逐条出处", "desc": "做原文溯源与白话对照，素材少但对出处精度要求最高。", "themes": ["经典"], "pool": ["食养", "体质", "节气", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 10, "area": 0, "area_note": "月产出件数 · 独占素材 10 条（经典）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"], "gap_text": "原典逐字比对（ctext/wikisource）、白话释读撰写 仍为纯手工环节。", "picks": [{"name": "原典逐字比对（ctext/wikisource）", "kind": "可辅助", "detail": "这一步需要人做判断，但可比对与检索的重复部分可以交给工具，人只做最终确认：目前尚无现成工具，可先把原典检索与版本比对写成脚本，再由人确认最终用字"}], "next_step": "先把「篇名与原句级出处核验」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "classic_channel", "name": "经典研读博主", "sub": "内经原文 · 逐条出处", "desc": "做原文溯源与白话对照，素材少但对出处精度要求最高。", "themes": ["经典"], "pool": ["食养", "体质", "节气", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 10, "area": 0, "area_note": "月产出件数 · 独占素材 10 条（经典）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"], "gap_text": "原典逐字比对（ctext/wikisource）、白话释读撰写 仍为纯手工环节。", "picks": [{"name": "篇名与原句级出处核验", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：data/节气经典_出处对照表.md — 逐条原句出处对照"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "classic_channel", "name": "经典研读博主", "sub": "内经原文 · 逐条出处", "desc": "做原文溯源与白话对照，素材少但对出处精度要求最高。", "themes": ["经典"], "pool": ["食养", "体质", "节气", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 10, "area": 0, "area_note": "月产出件数 · 独占素材 10 条（经典）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"], "gap_text": "原典逐字比对（ctext/wikisource）、白话释读撰写 仍为纯手工环节。", "picks": [{"name": "原典逐字比对（ctext/wikisource）", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "classic_channel", "name": "经典研读博主", "sub": "内经原文 · 逐条出处", "desc": "做原文溯源与白话对照，素材少但对出处精度要求最高。", "themes": ["经典"], "pool": ["食养", "体质", "节气", "自省", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 10, "area": 0, "area_note": "月产出件数 · 独占素材 10 条（经典）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "篇名与原句级出处核验", "state": "auto", "state_label": "已进管线", "tool": "source_upgrade", "tool_evidence": "upgrade_sources.py — 条目出处升级为篇名+原句级"}, {"name": "出处对照表维护", "state": "auto", "state_label": "已进管线", "tool": "source_map", "tool_evidence": "data/节气经典_出处对照表.md — 逐条原句出处对照"}, {"name": "原典逐字比对（ctext/wikisource）", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "白话释读撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["原典逐字比对（ctext/wikisource）", "白话释读撰写"], "gap_text": "原典逐字比对（ctext/wikisource）、白话释读撰写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "原典逐字比对（ctext/wikisource）", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "routine_channel": {"manual": {"role": {"key": "routine_channel", "name": "起居调养号主", "sub": "作息起居 · 日常节律", "desc": "起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。", "themes": ["起居"], "pool": ["食养", "体质", "节气", "经典", "自省", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 35, "area": 0, "area_note": "月产出件数 · 独占素材 35 条（起居）", "rate": 67, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "manual_gap": ["节律建议成稿撰写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["节律建议成稿撰写"], "gap_text": "节律建议成稿撰写 仍为纯手工环节。", "picks": [{"name": "起居条目拆解与合规改写", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「起居条目拆解与合规改写」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "routine_channel", "name": "起居调养号主", "sub": "作息起居 · 日常节律", "desc": "起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。", "themes": ["起居"], "pool": ["食养", "体质", "节气", "经典", "自省", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 35, "area": 0, "area_note": "月产出件数 · 独占素材 35 条（起居）", "rate": 67, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "manual_gap": ["节律建议成稿撰写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["节律建议成稿撰写"], "gap_text": "节律建议成稿撰写 仍为纯手工环节。", "picks": [{"name": "起居条目拆解与合规改写", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "起居合规扫描", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "routine_channel", "name": "起居调养号主", "sub": "作息起居 · 日常节律", "desc": "起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。", "themes": ["起居"], "pool": ["食养", "体质", "节气", "经典", "自省", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 35, "area": 0, "area_note": "月产出件数 · 独占素材 35 条（起居）", "rate": 67, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "manual_gap": ["节律建议成稿撰写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["节律建议成稿撰写"], "gap_text": "节律建议成稿撰写 仍为纯手工环节。", "picks": [{"name": "节律建议成稿撰写", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "routine_channel", "name": "起居调养号主", "sub": "作息起居 · 日常节律", "desc": "起居类素材的专属出口，35 条起居条目归属于此。与体质辨析号主强关联：起居是体质调养的落地动作。", "themes": ["起居"], "pool": ["食养", "体质", "节气", "经典", "自省", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 35, "area": 0, "area_note": "月产出件数 · 独占素材 35 条（起居）", "rate": 67, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "起居条目拆解与合规改写", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "节律建议成稿撰写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "起居合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}], "manual_gap": ["节律建议成稿撰写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["节律建议成稿撰写"], "gap_text": "节律建议成稿撰写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "节律建议成稿撰写", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "self_reflect": {"manual": {"role": {"key": "self_reflect", "name": "自省心性号主", "sub": "每日一问 · 情绪起居", "desc": "以自省问答为载体的内容位次。", "themes": ["自省"], "pool": ["食养", "体质", "节气", "经典", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 12, "area": 0, "area_note": "月产出件数 · 独占素材 12 条（自省）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["问答撰写与改写"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["问答撰写与改写"], "gap_text": "问答撰写与改写 仍为纯手工环节。", "picks": [{"name": "自省条目入库", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「自省条目入库」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "self_reflect", "name": "自省心性号主", "sub": "每日一问 · 情绪起居", "desc": "以自省问答为载体的内容位次。", "themes": ["自省"], "pool": ["食养", "体质", "节气", "经典", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 12, "area": 0, "area_note": "月产出件数 · 独占素材 12 条（自省）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["问答撰写与改写"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["问答撰写与改写"], "gap_text": "问答撰写与改写 仍为纯手工环节。", "picks": [{"name": "自省条目入库", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "self_reflect", "name": "自省心性号主", "sub": "每日一问 · 情绪起居", "desc": "以自省问答为载体的内容位次。", "themes": ["自省"], "pool": ["食养", "体质", "节气", "经典", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 12, "area": 0, "area_note": "月产出件数 · 独占素材 12 条（自省）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["问答撰写与改写"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["问答撰写与改写"], "gap_text": "问答撰写与改写 仍为纯手工环节。", "picks": [{"name": "问答撰写与改写", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "self_reflect", "name": "自省心性号主", "sub": "每日一问 · 情绪起居", "desc": "以自省问答为载体的内容位次。", "themes": ["自省"], "pool": ["食养", "体质", "节气", "经典", "起居", "边界", "项目"], "is_channel": false, "is_cash": false, "material": 12, "area": 0, "area_note": "月产出件数 · 独占素材 12 条（自省）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "自省条目入库", "state": "auto", "state_label": "已进管线", "tool": "batch_build", "tool_evidence": "build_wellness_batch2/3/4.py — 分型段落与节气条目批量拆解生成"}, {"name": "每日一问生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "问答撰写与改写", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["问答撰写与改写"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["问答撰写与改写"], "gap_text": "问答撰写与改写 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "问答撰写与改写", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "content_dual": {"manual": {"role": {"key": "content_dual", "name": "短视频图文内容主", "sub": "口播成片 · 图文笔记", "desc": "成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。", "themes": [], "pool": ["食养", "节气", "体质"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 57, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["口播表达与演绎", "成稿润色"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["口播表达与演绎", "成稿润色"], "gap_text": "口播表达与演绎、成稿润色 仍为纯手工环节。", "picks": [{"name": "选题素材抽取", "kind": "先接管线", "detail": "这一步属于重复搬运，同类动作已有现成能力可承接，迁移过来即可省下手工：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}], "next_step": "先把「选题素材抽取」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "content_dual", "name": "短视频图文内容主", "sub": "口播成片 · 图文笔记", "desc": "成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。", "themes": [], "pool": ["食养", "节气", "体质"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 57, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["口播表达与演绎", "成稿润色"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["口播表达与演绎", "成稿润色"], "gap_text": "口播表达与演绎、成稿润色 仍为纯手工环节。", "picks": [{"name": "选题素材抽取", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "脚本初稿生成", "kind": "定稿边界", "detail": "脚本出初稿、人工定稿，需写清初稿到定稿的验收标准：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "content_dual", "name": "短视频图文内容主", "sub": "口播成片 · 图文笔记", "desc": "成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。", "themes": [], "pool": ["食养", "节气", "体质"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 57, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["口播表达与演绎", "成稿润色"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["口播表达与演绎", "成稿润色"], "gap_text": "口播表达与演绎、成稿润色 仍为纯手工环节。", "picks": [{"name": "口播表达与演绎", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "content_dual", "name": "短视频图文内容主", "sub": "口播成片 · 图文笔记", "desc": "成品出口位次。短视频与图文是同一批素材的两种形态，合并计一个位次——分开计会把同一批素材重复计入面积。", "themes": [], "pool": ["食养", "节气", "体质"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 57, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "选题素材抽取", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "脚本初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "配图文案初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描与改写", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "素材溯源核对", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "口播表达与演绎", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "成稿润色", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["口播表达与演绎", "成稿润色"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["口播表达与演绎", "成稿润色"], "gap_text": "口播表达与演绎、成稿润色 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "口播表达与演绎", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "course_teacher": {"manual": {"role": {"key": "course_teacher", "name": "线上课程讲师", "sub": "体系课 · 直播带教", "desc": "把素材组织成课程结构的位次。", "themes": [], "pool": ["起居", "食养", "经典"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["授课讲授与答疑"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["授课讲授与答疑"], "gap_text": "授课讲授与答疑 仍为纯手工环节。", "picks": [{"name": "课程大纲素材编排", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「课程大纲素材编排」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "course_teacher", "name": "线上课程讲师", "sub": "体系课 · 直播带教", "desc": "把素材组织成课程结构的位次。", "themes": [], "pool": ["起居", "食养", "经典"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["授课讲授与答疑"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["授课讲授与答疑"], "gap_text": "授课讲授与答疑 仍为纯手工环节。", "picks": [{"name": "合规扫描", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "课程大纲素材编排", "kind": "定稿边界", "detail": "脚本出初稿、人工定稿，需写清初稿到定稿的验收标准：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "course_teacher", "name": "线上课程讲师", "sub": "体系课 · 直播带教", "desc": "把素材组织成课程结构的位次。", "themes": [], "pool": ["起居", "食养", "经典"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["授课讲授与答疑"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["授课讲授与答疑"], "gap_text": "授课讲授与答疑 仍为纯手工环节。", "picks": [{"name": "授课讲授与答疑", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "course_teacher", "name": "线上课程讲师", "sub": "体系课 · 直播带教", "desc": "把素材组织成课程结构的位次。", "themes": [], "pool": ["起居", "食养", "经典"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 50, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "课程大纲素材编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "讲义初稿生成", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "合规扫描", "state": "auto", "state_label": "已进管线", "tool": "brief_scan", "tool_evidence": "build_daily_brief.py 内置早报合规扫描器（断言类/用药类/问询类/项目类）"}, {"name": "授课讲授与答疑", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["授课讲授与答疑"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["授课讲授与答疑"], "gap_text": "授课讲授与答疑 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "授课讲授与答疑", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "community": {"manual": {"role": {"key": "community", "name": "社群私域主", "sub": "早报分发 · 长期陪伴", "desc": "负责长期陪伴与内容分发，是转化链条的末端。", "themes": [], "pool": ["体质", "边界"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["群内答疑与陪伴"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["群内答疑与陪伴"], "gap_text": "群内答疑与陪伴 仍为纯手工环节。", "picks": [{"name": "早报每日生成", "kind": "保持现状", "detail": "该位次的动作已全部进管线，当前没有可继续自动化的手工环节。"}], "next_step": "先把「早报每日生成」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "community", "name": "社群私域主", "sub": "早报分发 · 长期陪伴", "desc": "负责长期陪伴与内容分发，是转化链条的末端。", "themes": [], "pool": ["体质", "边界"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["群内答疑与陪伴"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["群内答疑与陪伴"], "gap_text": "群内答疑与陪伴 仍为纯手工环节。", "picks": [{"name": "早报每日生成", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "community", "name": "社群私域主", "sub": "早报分发 · 长期陪伴", "desc": "负责长期陪伴与内容分发，是转化链条的末端。", "themes": [], "pool": ["体质", "边界"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["群内答疑与陪伴"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["群内答疑与陪伴"], "gap_text": "群内答疑与陪伴 仍为纯手工环节。", "picks": [{"name": "群内答疑与陪伴", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "community", "name": "社群私域主", "sub": "早报分发 · 长期陪伴", "desc": "负责长期陪伴与内容分发，是转化链条的末端。", "themes": [], "pool": ["体质", "边界"], "is_channel": true, "is_cash": false, "material": 0, "area": 0, "area_note": "月产出件数（工序链推导）", "rate": 75, "quadrant": "pipeline_zone", "quadrant_name": "流程区", "quadrant_color": "yellow", "actions": [{"name": "早报每日生成", "state": "auto", "state_label": "已进管线", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "早报推送分发", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "推送前合规自检", "state": "auto", "state_label": "已进管线", "tool": "brief_push", "tool_evidence": "push_brief_to_docs.py — 早报 MD→MDX→腾讯文档推送，上传前 10 项自检"}, {"name": "群内答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["群内答疑与陪伴"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["群内答疑与陪伴"], "gap_text": "群内答疑与陪伴 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "群内答疑与陪伴", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}, "monetize": {"manual": {"role": {"key": "monetize", "name": "私域变现主", "sub": "会员订阅 · 付费社群", "desc": "唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。", "themes": ["边界", "项目"], "pool": ["食养", "体质", "节气", "经典", "自省", "起居"], "is_channel": false, "is_cash": true, "material": 13, "area": 0, "area_note": "月产出件数 · 独占素材 13 条（边界 + 项目）", "rate": 30, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"]}, "stage": "manual", "stage_name": "全手工", "gaps": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"], "gap_text": "会员权益结构设计、会员答疑与陪伴、订阅续费与退订处理 仍为纯手工环节。", "picks": [{"name": "订阅续费与退订处理", "kind": "先接管线", "detail": "这一步属于重复搬运，同类动作已有现成能力可承接，迁移过来即可省下手工："}], "next_step": "先把「会员权益结构设计」这类重复搬运动作接进现有脚本，让机器承担搬运，人只保留判断与表达。", "pool_size": 0}, "tool": {"role": {"key": "monetize", "name": "私域变现主", "sub": "会员订阅 · 付费社群", "desc": "唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。", "themes": ["边界", "项目"], "pool": ["食养", "体质", "节气", "经典", "自省", "起居"], "is_channel": false, "is_cash": true, "material": 13, "area": 0, "area_note": "月产出件数 · 独占素材 13 条（边界 + 项目）", "rate": 30, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"]}, "stage": "tool", "stage_name": "有工具", "gaps": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"], "gap_text": "会员权益结构设计、会员答疑与陪伴、订阅续费与退订处理 仍为纯手工环节。", "picks": [{"name": "付费物料合规校验", "kind": "归拢", "detail": "已具备工具能力，缺的是稳定调用顺序：validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "订阅内容排期编排", "kind": "定稿边界", "detail": "脚本出初稿、人工定稿，需写清初稿到定稿的验收标准：build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}], "next_step": "把散落在各处的脚本归到统一契约层，形成一条可重跑、可验收的产出管线。", "pool_size": 0}, "pipeline": {"role": {"key": "monetize", "name": "私域变现主", "sub": "会员订阅 · 付费社群", "desc": "唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。", "themes": ["边界", "项目"], "pool": ["食养", "体质", "节气", "经典", "自省", "起居"], "is_channel": false, "is_cash": true, "material": 13, "area": 0, "area_note": "月产出件数 · 独占素材 13 条（边界 + 项目）", "rate": 30, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"]}, "stage": "pipeline", "stage_name": "有流程", "gaps": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"], "gap_text": "会员权益结构设计、会员答疑与陪伴、订阅续费与退订处理 仍为纯手工环节。", "picks": [{"name": "会员权益结构设计", "kind": "闭环缺口", "detail": "这一步仍需人承接，是当前闭环上唯一的断点，建议先明确它的交付标准与留痕方式。"}, {"name": "产出留痕", "kind": "闭环补齐", "detail": "每次产出需要能回溯到具体条目与出处，建议把素材引用与出处字段随产出一起归档。"}, {"name": "分发节奏", "kind": "闭环补齐", "detail": "已有产出但尚未固定分发节奏，建议接入推送通道形成稳定节律。"}], "next_step": "给管线补上留痕与分发两个环节，跑通从素材到阅读场景的完整闭环。", "pool_size": 0}, "system": {"role": {"key": "monetize", "name": "私域变现主", "sub": "会员订阅 · 付费社群", "desc": "唯一通向现金的位次。承接前九个位次的流量，把陪伴关系转为付费订阅；线下交付已停办，本位次是养生链的现金出口。", "themes": ["边界", "项目"], "pool": ["食养", "体质", "节气", "经典", "自省", "起居"], "is_channel": false, "is_cash": true, "material": 13, "area": 0, "area_note": "月产出件数 · 独占素材 13 条（边界 + 项目）", "rate": 30, "quadrant": "tool_zone", "quadrant_name": "工具区", "quadrant_color": "orange", "actions": [{"name": "会员权益结构设计", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅内容排期编排", "state": "semi", "state_label": "半自动", "tool": "brief_gen", "tool_evidence": "build_daily_brief.py — 六卡早报自动生成（节气快照/体质画像/经典条文/今日养护/自省问答/明日预告）"}, {"name": "付费物料合规校验", "state": "auto", "state_label": "已进管线", "tool": "ssot_guard", "tool_evidence": "validate_ssot.py — SSOT 10 类合规校验，全表 0 错误 0 警告"}, {"name": "会员答疑与陪伴", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}, {"name": "订阅续费与退订处理", "state": "manual", "state_label": "纯手工", "tool": null, "tool_evidence": ""}], "manual_gap": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"]}, "stage": "system", "stage_name": "要闭环", "gaps": ["会员权益结构设计", "会员答疑与陪伴", "订阅续费与退订处理"], "gap_text": "会员权益结构设计、会员答疑与陪伴、订阅续费与退订处理 仍为纯手工环节。", "picks": [{"name": "内容分层", "kind": "闭环", "detail": "素材已达可调度规模，建议按主题与节气把条目编排成固定栏目，避免每期临时选材。"}, {"name": "选题调度", "kind": "闭环", "detail": "现有能力可直接承担选材与初稿，建议把选题规则写成可配置项，按节气与体质自动排期。"}, {"name": "会员权益结构设计", "kind": "保留人工", "detail": "该环节含判断与表达，建议刻意保留手工，作为内容差异化的来源而非自动化目标。"}], "next_step": "当前已接近闭环，重点转向内容分层的选题调度，让每期产出可预期、可复盘。", "pool_size": 0}}}, "stageNames": {"manual": "全手工", "tool": "有工具", "pipeline": "有流程", "system": "要闭环"}};
+
+// ── 页签 ──
+function go(tab){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('on'));
+  const el = document.getElementById('panel-'+tab);
+  if(el) el.classList.add('on');
+  const btn = document.querySelector('nav button[data-tab="'+tab+'"]');
+  if(btn) btn.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+// 从地图跳到工序链时，同步位次选择
+function gotoChain(key){
+  const opt = document.querySelector('#chainOpts .opt[data-role="'+key+'"]');
+  if(opt){
+    document.querySelectorAll('#chainOpts .opt').forEach(x=>x.classList.remove('on'));
+    opt.classList.add('on');
+    renderChain(key);
+  }
+  go('chain');
+}
+function gotoSim(key){
+  const opt = document.querySelector('#simOpts .opt[data-role="'+key+'"]');
+  if(opt){
+    document.querySelectorAll('#simOpts .opt').forEach(x=>x.classList.remove('on'));
+    opt.classList.add('on');
+    simRole = key;
+    renderSim();
+  }
+  go('sim');
+}
+document.querySelectorAll('nav button').forEach(b=>{
+  b.addEventListener('click',()=>go(b.dataset.tab));
+});
+
+// ── treemap 详情 ──
+const QUAD_PILL = {green:'g',yellow:'y',orange:'o',red:'r'};
+function showDetail(key){
+  const it = DATA.roles[key];
+  if(!it) return;
+  const acts = it.actions.map(a=>
+    '<div class="act"><div class="st ' + a.state + '">' + a.state_label + '</div>' +
+    '<div><div class="nm">' + a.name + '</div>' +
+    '<div class="ev">' + (a.tool_evidence || '该环节含判断与表达，由人完成') + '</div></div></div>'
+  ).join('');
+  const html =
+    '<div class="detail-hd"><div><h3>' + it.name + '</h3>' +
+    '<div class="meta">' + it.sub + ' · 素材池 ' + it.area_note + '</div></div>' +
+    '<div><span class="pill ' + QUAD_PILL[it.quadrant_color] + '">' + it.quadrant_name + '</span>' +
+    '<span class="pill ' + QUAD_PILL[it.quadrant_color] + '">工具化 ' + it.rate + '%</span></div></div>' +
+    '<p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;line-height:1.7">' + it.desc + '</p>' +
+    '<div class="r-sec"><h4>动作拆解</h4><div class="act-list">' + acts + '</div></div>' +
+    (it.manual_gap.length
+      ? '<div class="r-sec"><h4>仍需人工</h4><ul>' +
+        it.manual_gap.map(g=>'<li>'+g+'</li>').join('') + '</ul></div>'
+      : '') +
+    (it.pool.length
+      ? '<div class="r-sec"><h4>可复用素材池</h4><p style="font-size:12.5px;color:var(--ink-soft)">' +
+        it.pool.join(' · ') + '</p></div>'
+      : '') +
+    (it.unit_econ
+      ? '<div class="r-sec"><h4>单位经济</h4>' +
+        '<div class="ue-grid">' +
+        '<div class="ue"><div class="ue-n">' + it.unit_econ.total_minutes + '<small>分</small></div><div class="ue-l">单件总工时</div></div>' +
+        '<div class="ue"><div class="ue-n">' + it.unit_econ.residual_minutes + '<small>分</small></div><div class="ue-l">自动化后残余</div></div>' +
+        '<div class="ue"><div class="ue-n">' + it.unit_econ.pieces_per_week + '<small>件</small></div><div class="ue-l">周产能</div></div>' +
+        '</div>' +
+        '<div class="warn" style="margin-top:11px">瓶颈工序：<b>' + it.unit_econ.bottleneck +
+        '</b>（占单件工时 ' + it.unit_econ.bottleneck_share + '%）。' +
+        '<button class="btn ghost" style="margin-top:9px" onclick="go(\'chain\')">查看完整工序链</button></div></div>'
+      : '');
+  const d = document.getElementById('detail');
+  d.innerHTML = html;
+  d.classList.add('on');
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+document.querySelectorAll('.tm-cell').forEach(g=>{
+  g.addEventListener('click',()=>showDetail(g.dataset.key));
+  g.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();showDetail(g.dataset.key);}
+  });
+});
+
+// ── 生成报告 ──
+let selRole = null, selStage = 'system';
+function renderReport(){
+  if(!selRole) return;
+  const r = DATA.reports[selRole][selStage];
+  const role = DATA.roles[selRole];
+  const pill = QUAD_PILL[role.quadrant_color];
+  const picks = r.picks.map(p=>
+    '<li><b>' + p.name + '</b>（' + p.kind + '）—— ' + p.detail + '</li>').join('');
+  const html =
+    '<h3>' + role.name + ' · 位次报告</h3>' +
+    '<div class="r-sub">当前工作方式：' + r.stage_name + '　|　' +
+    '工具化率 ' + role.rate + '%　|　' +
+    '<span class="pill ' + pill + '">' + role.quadrant_name + '</span>' +
+    '<span class="pill ' + pill + '">素材池 ' + role.area_note + '</span></div>' +
+    '<div class="r-sec"><h4>现状判定</h4><p style="font-size:13px;color:var(--ink-soft);line-height:1.7">' +
+    role.desc + '</p></div>' +
+    '<div class="r-sec"><h4>动作拆解与建议</h4><ol>' + picks + '</ol></div>' +
+    '<div class="r-sec"><h4>仍需人工</h4><p style="font-size:13px;color:var(--ink-soft)">' +
+    r.gap_text + '</p></div>' +
+    '<div class="r-sec"><h4>下一步</h4><div class="r-next">' + r.next_step + '</div></div>' +
+    '<div class="warn">提示：本报告依据工具化率与素材供给现状给出，与个人健康状况无关。' +
+    '内容仅用于养生日常起居参考，不构成诊断或治疗建议；身体不适请至正规医疗机构就诊。</div>';
+  const el = document.getElementById('report');
+  el.innerHTML = html;
+  el.classList.add('on');
+}
+document.querySelectorAll('#roleOpts .opt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('#roleOpts .opt').forEach(x=>x.classList.remove('on'));
+    o.classList.add('on');
+    selRole = o.dataset.role;
+    renderReport();
+  });
+});
+document.querySelectorAll('#stageOpts .opt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('#stageOpts .opt').forEach(x=>x.classList.remove('on'));
+    o.classList.add('on');
+    selStage = o.dataset.stage;
+    renderReport();
+  });
+});
+
+// ══════════════════════════════════════════════
+// 深度模型：工序链 / 经营推演 / 90天路线 / 风险预警
+// ══════════════════════════════════════════════
+
+// ── 工序链下钻 ──
+function renderChain(key){
+  const r = MODEL.roles[key];
+  if(!r) return;
+  const u = r.unit_econ;
+  const steps = r.chain_steps.map((s,i)=>{
+    const depTxt = s.dep ? '<div class="ch-dep">前置：'+s.dep+'</div>' : '';
+    const bn = s.bottleneck ? '<span class="ch-bn">瓶颈</span>' : '';
+    return '<div class="ch-step' + (s.bottleneck?' bn':'') + '">' +
+      '<div class="ch-top"><span class="ch-i">'+(i+1)+'</span>' +
+      '<div class="ch-nm">'+s.name+'</div>' + bn +
+      '<div class="ch-min">'+s.minutes+' 分</div></div>' +
+      '<div class="ch-bar"><i style="width:'+Math.min(100,s.share)+'%"></i></div>' +
+      '<div class="ch-meta"><span class="st '+s.state+'">'+s.state_label+'</span>' +
+      '<span class="ch-share">占单件 '+s.share+'%</span></div>' +
+      depTxt +
+      (s.tool_evidence ? '<div class="ch-ev">'+s.tool_evidence+'</div>' : '') +
+      '</div>';
+  }).join('');
+
+  const html =
+    '<h3>'+r.name+' · 工序链</h3>' +
+    '<div class="r-sub">产出单位：'+u.unit+'（'+u.unit_note+'）　|　' +
+    '单件总工时 '+u.total_minutes+' 分　|　自动化后残余 '+u.residual_minutes+' 分</div>' +
+    '<div class="r-sec"><h4>工序顺序与工时占比</h4><div class="ch-list">'+steps+'</div></div>' +
+    '<div class="r-sec"><h4>单位经济</h4>' +
+    '<div class="ue-grid">' +
+    '<div class="ue"><div class="ue-n">'+u.total_minutes+'<small>分</small></div><div class="ue-l">单件总工时</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.manual_minutes+'<small>分</small></div><div class="ue-l">纯手工占用</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.auto_saved_minutes+'<small>分</small></div><div class="ue-l">自动化已省</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.residual_minutes+'<small>分</small></div><div class="ue-l">当前残余</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.pieces_per_week+'<small>件</small></div><div class="ue-l">周产能</div></div>' +
+    '</div>' +
+    '<p class="ch-note">工时为口径值（非实测），用于横向比较与瓶颈识别；' +
+    '实际投入可按真实记录覆盖。周产能已扣除维持性开销（分发、回复、复盘、素材补充）。</p></div>' +
+    '<div class="r-sec"><h4>瓶颈</h4><div class="warn" style="margin-top:0">' +
+    '当前瓶颈工序为「'+u.bottleneck+'」，占单件工时 '+u.bottleneck_share+'%。' +
+    '优化它对产能的边际收益最大——可到「经营推演」页调整参数看效果。</div></div>';
+  document.getElementById('chain').innerHTML = html;
+  document.getElementById('chain').classList.add('on');
+}
+document.querySelectorAll('#chainOpts .opt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('#chainOpts .opt').forEach(x=>x.classList.remove('on'));
+    o.classList.add('on');
+    renderChain(o.dataset.role);
+  });
+});
+
+// ── 经营推演 ──
+// 默认位次取内容量最大的那个（用数据层排序后的第一个），避免写死 key 失效
+let simRole = MODEL.order[0];
+function renderSim(){
+  const r = MODEL.roles[simRole];
+  const res = SIM.run(simRole, simHours, simOpt, simAuto);
+  if(!res) return;
+  const u = r.unit_econ;
+
+  const bars = res.steps.map(s=>
+    '<div class="sim-bar-row"><div class="sim-bar-nm">'+s.name+'</div>' +
+    '<div class="sim-bar"><i style="width:'+Math.min(100,s.share)+'%"></i></div>' +
+    '<div class="sim-bar-v">'+s.minutes+' 分</div>' +
+    '<div class="sim-bar-p">'+s.share+'%</div></div>'
+  ).join('');
+
+  const health = res.health.map(h=>
+    '<li class="hl-'+h.level+'">'+h.text+'</li>').join('');
+
+  const html =
+    '<h3>经营推演 · '+r.name+'</h3>' +
+    '<div class="r-sub">产出单位 '+res.unit+'　|　投入 '+simHours+' 小时/周　|　' +
+    '瓶颈优化 '+simOpt+'%　|　自动化投入 '+simAuto+'%</div>' +
+
+    '<div class="r-sec"><h4>推演结果</h4>' +
+    '<div class="sim-grid">' +
+    '<div class="sim-kpi"><div class="k-n">'+res.piecesPerWeek+'<small>件/周</small></div>' +
+    '<div class="k-l">稳定产能</div><div class="k-d">'+res.piecesPerDay+' 件/日</div></div>' +
+    '<div class="sim-kpi"><div class="k-n">'+res.pieces90+'<small>件</small></div>' +
+    '<div class="k-l">90 天累计</div><div class="k-d">约 12.9 周产量</div></div>' +
+    '<div class="sim-kpi"><div class="k-n">'+res.residualMinutes+'<small>分</small></div>' +
+    '<div class="k-l">单件残余工时</div><div class="k-d">较基线省 '+res.savedMinutes+' 分</div></div>' +
+    '<div class="sim-kpi"><div class="k-n">'+res.newBottleneckShare+'<small>%</small></div>' +
+    '<div class="k-l">新瓶颈占比</div><div class="k-d">'+res.newBottleneck+'</div></div>' +
+    '</div>' +
+    '<div class="cadence hl-'+res.cadence.level+'">'+res.cadence.text+'</div></div>' +
+
+    '<div class="r-sec"><h4>优化后工序工时结构</h4><div class="sim-bars">'+bars+'</div>' +
+    '<p class="ch-note">瓶颈工序「'+res.bottleneckName+'」在本轮优化中削减了 ' +
+    res.bottleneckSaved+' 分钟。工时为口径值，不含收入预测——' +
+    '没有真实定价与转化数据时，任何收入数字都是虚构。</p></div>' +
+
+    '<div class="r-sec"><h4>结构体检</h4><ul class="sim-health">'+health+'</ul></div>' +
+
+    '<div class="r-sec"><h4>基线对照</h4>' +
+    '<div class="ue-grid">' +
+    '<div class="ue"><div class="ue-n">'+u.residual_minutes+'<small>分</small></div><div class="ue-l">当前残余</div></div>' +
+    '<div class="ue"><div class="ue-n">'+res.residualMinutes+'<small>分</small></div><div class="ue-l">推演后残余</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.pieces_per_week+'<small>件</small></div><div class="ue-l">当前周产能</div></div>' +
+    '<div class="ue"><div class="ue-n">'+res.piecesPerWeek+'<small>件</small></div><div class="ue-l">推演后周产能</div></div>' +
+    '<div class="ue"><div class="ue-n">'+u.bottleneck_share+'<small>%</small></div><div class="ue-l">当前瓶颈占比</div></div>' +
+    '</div></div>' +
+
+    '<div class="warn">本推演只测算产能与工时结构，不含收入、转化率与成本预测——' +
+    '这些需要真实经营数据支撑，在没有实测数据前给出数字属于虚构。' +
+    '内容仅用于养生日常起居参考，不构成诊断或治疗建议。</div>';
+  document.getElementById('sim').innerHTML = html;
+  document.getElementById('sim').classList.add('on');
+}
+document.querySelectorAll('#simOpts .opt').forEach(o=>{
+  o.addEventListener('click',()=>{
+    document.querySelectorAll('#simOpts .opt').forEach(x=>x.classList.remove('on'));
+    o.classList.add('on');
+    simRole = o.dataset.role;
+    renderSim();
+  });
+});
+['simHours','simOpt','simAuto'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input',()=>{
+    if(id==='simHours') simHours = +el.value;
+    if(id==='simOpt') simOpt = +el.value;
+    if(id==='simAuto') simAuto = +el.value;
+    const lbl = document.getElementById(id+'Val');
+    if(lbl) lbl.textContent = el.value + (id==='simHours'?' 小时':'%');
+    renderSim();
+  });
+});
+
+// ── 首屏预渲染 ──
+(function(){
+  const first = document.querySelector('#chainOpts .opt');
+  if(first) first.classList.add('on');
+  renderChain(MODEL.order[0]);
+  const sfirst = document.querySelector('#simOpts .opt');
+  if(sfirst) sfirst.classList.add('on');
+  renderSim();
+})();
+
+</script>
+</body>
+</html>

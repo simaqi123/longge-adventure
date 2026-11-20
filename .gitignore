@@ -1,0 +1,29 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 生成物（可由脚本重新生成，不入库）
+output/早报/
+!output/.gitkeep
+
+# 本地私有数据（绝不入库）
+SSOT/
+*_备份_*
+私人*
+*-私有*
+.env
+*.key
