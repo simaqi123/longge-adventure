@@ -1,9 +1,12 @@
 # Longge Adventure
 
 > **The operating system for a one-person company.**
-> A complete, runnable, verifiable pipeline for running a solo content business
-> as an AI company — from a single source of truth to a survival map that tells
-> you where the money comes from, where you are stuck, and when to stop.
+> A complete, runnable, verifiable **AI agent workflow** for running a solo
+> content business as a **one-person company** — from a single source of truth
+> to a survival map that tells you where the money comes from, where you are
+> stuck, and when to stop.
+>
+> **Build in public.** MIT licensed, zero dependencies.
 
 [中文版 README](README.zh-CN.md) · [Docs](docs/en/) · [Live demo](web/solo-wellness-map.en.html)
 
@@ -47,6 +50,11 @@ build if you break it.
 | **44/44** | injection tests blocked — deliberately corrupted pages, all caught |
 | **0** | third-party dependencies. Python 3.8+ standard library only |
 | **1 file** | each output is a single self-contained HTML you open offline |
+
+The knowledge table is a **knowledge base** with a strict contract: one writer,
+every row cited, every row screened. The survival map is a
+**one-person company dashboard** — it runs entirely on your own machine,
+**self-hosted**, with no account, no server and no network access at runtime.
 
 ---
 
@@ -183,9 +191,9 @@ Off-premise delivery — discontinued, and no longer a delivery path
 These boundaries are **in the validators**, not in a paragraph asking you to
 remember them:
 
-- `validate_ssot.py` — 10 rule families: banned medical wording, efficacy
-  claims, restricted audiences, consultation solicitation, invasive techniques,
-  prescription-only material
+- `validate_ssot.py` — a **compliance validator** covering 10 rule families:
+  banned medical wording, efficacy claims, restricted audiences, consultation
+  solicitation, invasive techniques, prescription-only material
 - `validate_constitution_html.py` — 16 scans on the result page: phone numbers,
   handles, external links, QR codes, scan-to-add prompts — none allowed
 - `validate_en_kb.py` — the English red lines: therapeutic claims, disease
@@ -209,8 +217,9 @@ two stay aligned.
 But it is deliberately **not** a machine translation of all 205 entries:
 
 - **91 entries are fully translated**: the 24 solar terms, the nine-constitution
-  framework, the classical texts with chapter-and-quote citations into the
-  Huangdi Neijing, the five compliance boundary clauses, the self-reflection
+  framework — the **TCM constitution** types are named and cross-referenced —
+  the classical texts with chapter-and-quote citations into the Huangdi
+  Neijing, the five compliance boundary clauses, the self-reflection
   questions, and the non-clinical service entries. These carry the verifiable
   public standards, and an English reader can check them.
 - **114 entries are structured templates**: daily routine and food-based

@@ -62,7 +62,7 @@ Without real pricing and conversion data, any revenue number is fiction. The val
 
 ## 2. Three Structural Invariants
 
-### 2.1 `Σ 独占素材 ≡ SSOT 实际条目数`
+### 2.1 `Σ exclusive material ≡ SSOT entry count`
 
 **Why it is needed**: the area metric in v2 was "the number of entries in the role slot's own material pool inside the SSOT",
 but the `themes` lists of the role slots overlap — those 79 `食养` entries were each counted once by the Food-Wellness Channel Lead, the short-video narration lead, the graphic-notes lead, and the Online Course Instructor.
@@ -75,11 +75,11 @@ every other role slot that references that theme records it in `pool` (shared so
 
 ```python
 THEME_OWNER = {
-    "食养": "food_channel",   # → 食养内容号主
-    "节气": "solar_channel",   # → 节气养生号主
-    "体质": "constitution_channel",  # → 体质辨析号主
-    "经典": "classic_channel", # → 经典研读博主
-    "起居": "routine_channel", # → 起居调养号主
+    "食养": "food_channel",   # → Food-Wellness Channel Lead
+    "节气": "solar_channel",   # → Solar-Term Wellness Lead
+    "体质": "constitution_channel",  # → Constitution Insight Lead
+    "经典": "classic_channel", # → Classical Text Scholar
+    "起居": "routine_channel", # → Daily Routine Lead
     "自省": "self_reflect",    # → 自省心性号主
     "边界": "monetize",        # → 私域变现主
     "项目": "monetize",        # → 私域变现主
@@ -168,7 +168,7 @@ Compresses the whole map into a one-page printable report: role slot list, mater
 
 ### 3.4 Survival Model (panel-model)
 
-Cross-section reading of the map: the decision rules and thresholds for the quadrants (`规模化` / `提效` / `观察` / `收缩`).
+Cross-section reading of the map: the decision rules and thresholds for the quadrants (`System zone` / `Tooling zone` / `Process zone` / `Manual zone`).
 
 ### 3.5 Case Library (panel-cases)
 
@@ -184,12 +184,12 @@ Six risk criteria, each bound to an **observable metric + decision threshold**:
 
 | Risk | Criteria |
 |---|---|
-| `素材见底` | Exclusive material consumption rate > replenishment rate |
-| `单点依赖` | Share of a single material source > 60% |
-| `口径漂移` | Derived-level data cited as measured-level data |
-| `产能虚高` | Actual output units < 70% of the projected figure |
-| `合规风险` | Any red-line hit appears |
-| `现金断链` | Content output is normal but subscription conversion is 0 in a row |
+| Material running dry | Exclusive material consumption rate > replenishment rate |
+| Single-point dependency | Share of a single material source > 60% |
+| Metric drift | Derived-level data cited as measured-level data |
+| Capacity overestimate | Actual output units < 70% of the projected figure |
+| Compliance risk | Any red-line hit appears |
+| Broken cash chain | Content output is normal but subscription conversion is 0 in a row |
 
 ### 3.8 Disclaimer and Definitions (panel-notes)
 

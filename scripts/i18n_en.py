@@ -390,7 +390,7 @@ FUNNEL_EN = [
                 "k": "Compliance first",
                 "n": "Every finished piece carries a citation and a disclaimer",
                 "d": "Content passes the validator before publication. It states constitution tendencies and living principles only — never a disease name, never an outcome promise, never a restricted audience.",
-                "m": "22 red-line checks",
+                "m": "10 compliance rule families",
             },
         },
     },

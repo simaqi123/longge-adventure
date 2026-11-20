@@ -23,14 +23,14 @@
 
 ### Theme Distribution
 
-| 主题 | Count | Description |
+| Theme | Count | Description |
 |---|---|---|
 | `食养` | 79 | Everyday meals, by far the largest material consumer |
 | `体质` | 37 | Tuning directions for the nine constitution types |
 | `起居` | 35 | Daily routine and everyday rhythms |
 | `节气` | 19 | Seasonal routine (full coverage of the 24 solar terms) |
 | `自省` | 12 | One question a day, on mood and routine |
-| `经典` | 10 | Quotations from 《内经》, each with its own source |
+| `经典` | 10 | Quotations from the Huangdi Neijing, each with its own source |
 | `项目` | 8 | Suitability tendencies plus compliance boundaries for non-diagnostic services |
 | `边界` | 5 | The compliance red-line entries themselves |
 
@@ -58,7 +58,7 @@ A source comes in exactly one of three forms:
 |---|---|---|
 | Classical text quotation | `《素问·四气调神大论篇第二》：「春三月，此谓发陈……」` | ✅ Verifiable |
 | Public standard / regulation | `《中医九种体质》标准`, `中医养生保健服务规范(试行)` | ✅ Verifiable |
-| Topic-level material | `慢病主题资料·慢病合集` | ⚠️ Internal material, records direction only |
+| Topic-level material | `慢病主题资料·慢病合集` | ⚠️ Internal material. Cites the corpus as a whole; no disease is named |
 
 **An empty source is not allowed, and neither is `NONE`.**
 
@@ -68,8 +68,8 @@ Every ingredient must carry a real attribution tag, consistent with `data/食药
 
 | Tag | Meaning |
 |---|---|
-| `食药清单内` | Listed in the National Health Commission's 《既是食品又是药品的物品名单》 |
-| `保健食品级` | Listed in 《可用于保健食品的物品名单》 |
+| `食药清单内` | Listed in the National Health Commission's "List of Items Both Food and Medicine" |
+| `保健食品级` | Listed in the "List of Items Usable in Health Food" |
 | `普通食品` | Ordinary food explicitly named in an announcement |
 | `普通食材` | Everyday crops / livestock / aquatic products / seasonings |
 
@@ -92,8 +92,8 @@ What this repository publishes is the **public release version**. The original c
 | Institution names | Replaced with neutral wording such as `非诊疗类养生服务机构` |
 | Pricing information | Removed entirely |
 | Commercial wording (price list / membership card) | Replaced with neutral wording such as `服务项目清单 / 服务套餐` |
-| Internal paragraph numbering (the private corpus' own segment ids) | Normalized to a topic-level label |
-| Private corpus file names | Normalized to `慢病主题资料·<方向>`, keeping the disease-area direction (public medical common sense) and dropping internal numbering |
+| Internal paragraph numbering (the private corpus' own segment ids) | Normalised to a topic-level label |
+| Private corpus file names | Normalised to `慢病主题资料·慢病合集`. **Disease names are dropped entirely** — a disease name in a citation column reads as an indication, which is exactly what the red lines forbid. The public table cites the corpus as a whole, not a disease segment |
 | Service names carrying internal commercial tone | Normalized to `温热灸服务 / 砭石温敷服务 / 全身推拿服务 / 拔罐服务 / 养生咨询服务` |
 | Local paths, cross-project information | Cleared entirely |
 
@@ -110,7 +110,7 @@ What this repository publishes is the **public release version**. The original c
 `scripts/sanitize_for_public.py` is not just a one-off script — it **carries its own leak self-check**:
 
 ```bash
-python scripts/sanitize_for_public.py --in 你的原始表.csv --out data/养生知识表.csv
+python scripts/sanitize_for_public.py --in your-table.csv --out data/养生知识表.csv
 ```
 
 The pipeline:

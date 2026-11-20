@@ -160,34 +160,33 @@ informational (learn), commercial (evaluate a solution), transactional (buy or s
 
 | Keyword | Target file | Section / title | Intent |
 |---|---|---|---|
-| one-person company | `README.md` | What this is | informational |
-| solo founder AI stack | `README.md` | Directory structure | informational |
+| one-person company | `README.md` | Why this exists | informational |
+| solo founder AI stack | `README.md` | Repository layout | informational |
 | build in public | `README.md` | Three structural invariants | informational |
 | AI agent workflow | `AGENTS.md` | Directory responsibilities | informational |
-| content business for solo entrepreneurs | `README.md` | What this is | informational |
-| how to structure a knowledge base with AI | `docs/en/data-guide.md` | Source-of-truth table | informational |
+| content business for solo entrepreneurs | `README.md` | Why this exists | informational |
+| how to structure a knowledge base with AI | `docs/en/data-guide.md` | The source-of-truth table | informational |
 | one person company dashboard | `web/solo-wellness-map.en.html` | The map | informational |
 | solar term wellness | `web/solo-wellness-map.en.html` | Solar term role | informational |
 | TCM constitution type | `data/wellness_kb.en.csv` | Constitution theme, 37 entries | informational |
-| self-hosted content pipeline | `README.md` | Three-minute setup | informational |
+| self-hosted content pipeline | `README.md` | Quick start | informational |
 | validate content compliance script | `scripts/validate_ssot.py` | Red-line word lists | informational |
 | injection testing for generated content | `scripts/test_survival_map_injection.py` | Injection cases | informational |
 | treemap business model | `web/solo-wellness-map.en.html` | The map | informational |
 | compliance validator for AI content | `docs/en/compliance-handbook.md` | Red lines | informational |
 | zero dependency python html generator | `scripts/build_en_map.py` | Generator entry | informational |
-| single file offline html dashboard | `README.md` | Three-minute setup | informational |
+| single file offline html dashboard | `README.md` | Quick start | informational |
 | content pipeline bottleneck analysis | `scripts/survival_deep_model.py` | Process chains | informational |
 | sanitize dataset before open sourcing | `scripts/sanitize_for_public.py` | Sanitiser rules | informational |
 | 90 day plan solo business | `web/solo-wellness-map.en.html` | 90-day roadmap | informational |
 | scan repo for leaked secrets | `scripts/leak_scan.py` | Scan rules | informational |
-| MIT licensed AI agent template | `LICENSE` | MIT License | informational |
 | source of truth for AI content | `docs/en/contract-layer.md` | Contract A | informational |
 | AI content compliance disclaimer | `docs/en/compliance-handbook.md` | Disclaimer templates | informational |
-| one-person company operating system | `README.md` | What this is | commercial |
-| solo creator monetization system | `README.md` | Monetisation path | commercial |
+| one-person company operating system | `README.md` | Why this exists | commercial |
+| solo creator monetization system | `README.md` | The monetization path | commercial |
 | AI content operating system template | `docs/en/launch-kit.md` | Conversion mechanics | commercial |
 | founder build-in-public launch checklist | `docs/en/launch-kit.md` | Launch assets | commercial |
-| content pipeline for a solo creator | `docs/en/data-guide.md` | Pipeline stages | commercial |
+| content pipeline for a solo creator | `docs/en/data-guide.md` | The pipeline stages | commercial |
 | one person company operating kit | `docs/en/launch-kit.md` | Conversion mechanics | transactional |
 | 1v1 solo business diagnosis | `docs/en/launch-kit.md` | Conversion mechanics | transactional |
 | solo creator build-in-public community | `docs/en/launch-kit.md` | Conversion mechanics | transactional |
@@ -538,8 +537,8 @@ Inside: a 205-entry knowledge table with 24 solar terms covered and a citation o
 roles measured by a single metric; 4 validators; and 44 injection tests that break the generated
 page on purpose to prove the validators catch it. Currently 44 out of 44.
 
-There is deliberately no revenue projection anywhere in the model. Without real pricing and renewal
-data, a revenue number would be fiction, so the validator blocks those strings.
+There is deliberately no revenue projection in the model. Without real pricing and renewal data, a
+revenue number would be fiction, so the validator blocks those strings.
 
 The weekly build-in-public retro is free and goes to everyone in Discussions.
 
@@ -554,10 +553,6 @@ template kit".
 
 It asks for an email and one question: how do you make money right now? The second question is
 not a filter. It is how I learn where the bottleneck is for someone who is not me.
-
-Zhang Wei / Long Ge
-
----
 
 ## 5. Build-in-public content calendar, 4 weeks
 
