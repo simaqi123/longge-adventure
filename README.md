@@ -47,9 +47,20 @@ python scripts/validate_constitution_html.py
 
 # 5. 注入测试：故意破坏页面，确认校验器能抓住（44/44）
 python scripts/test_survival_map_injection.py
+
+# 6. 发布前泄漏扫描
+python scripts/leak_scan.py
 ```
 
 无依赖，Python 3.8+ 标准库即可。生成的 HTML 是**单文件零外部依赖**，双击就能离线打开。
+
+**推送到自己账号**（需先在 GitHub 建一个空仓库）：
+
+```bash
+bash scripts/push_to_github.sh https://github.com/<你的账号>/<仓库名>.git
+```
+
+脚本会先跑一遍完整校验，任一项不过就中止，不会推半成品上去。
 
 ---
 
@@ -69,14 +80,24 @@ longge-adventure/
 │   ├── build_daily_brief.py    养生日课早报生成器
 │   ├── build_constitution_test.py  体质自测生成器
 │   ├── sanitize_for_public.py  公开版脱敏器（自带泄漏自检）
+│   ├── leak_scan.py            发布前泄漏扫描
 │   └── validate_*.py           4 个校验器 + 1 个注入测试
 ├── web/                        成品（单文件，离线可开）
 │   ├── 养生一人公司生存地图.html
 │   └── 体质自测.html
 ├── output/                     生成物（早报）
-├── docs/                       方法论、口径声明、合规手册、契约层
+├── docs/                       方法论、口径声明、合规手册、契约层、数据说明
+├── AGENTS.md                   给 AI 编码助手的项目约定
 └── scripts/sim_engine.js       经营推演引擎（内联进 HTML）
 ```
+
+**给 AI 助手的**：直接用 Codex / Claude Code / WorkBuddy 打开仓库根目录，
+读 [`AGENTS.md`](AGENTS.md) 就能驱动整条流水线。目录职责、修改流程、
+三条不可破的不变量都在里面。
+
+**CI 自动校验**：`.github/workflows/validate.yml` 在每次 push 时跑完全部五步校验
+加泄漏扫描，并检查 `web/` 下的生成物是否与重新生成的结果一致——
+不一致说明有人手改了生成物，CI 会拦下。
 
 ---
 

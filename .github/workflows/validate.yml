@@ -1,0 +1,55 @@
+name: 校验管线
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: 校验 SSOT 知识表
+        run: python scripts/validate_ssot.py data/养生知识表.csv
+
+      - name: 生成生存地图
+        run: python scripts/build_survival_map.py
+
+      - name: 生成体质自测
+        run: python scripts/build_constitution_test.py
+
+      - name: 校验生存地图结构与数字一致
+        run: python scripts/validate_survival_map.py
+
+      - name: 校验深度经营模型
+        run: python scripts/validate_deep_model.py
+
+      - name: 校验体质自测合规
+        run: python scripts/validate_constitution_html.py
+
+      - name: 注入测试（期望 44/44 拦截）
+        run: python scripts/test_survival_map_injection.py
+
+      - name: 校验生成物未被篡改
+        run: |
+          git diff --exit-code web/ || {
+            echo "::error::web/ 下的生成物与重新生成的结果不一致，请提交最新构建产物"
+            exit 1
+          }
+
+  leak-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: 公开版泄漏扫描
+        run: python scripts/leak_scan.py
