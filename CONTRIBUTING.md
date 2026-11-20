@@ -97,3 +97,38 @@ python scripts/test_survival_map_injection.py           # 必须 44/44 拦截
 
 涉及知识表内容的贡献，确保条目能溯源到公开来源（《内经》原文、公开标准、公开法规），
 或为已获授权的原创整理，并在 `备注` 里写明加工过程。
+
+
+---
+
+## Working on the English edition
+
+The English table (`data/wellness_kb.en.csv`) and the English page
+(`web/solo-wellness-map.en.html`) are **generated artifacts**. Do not edit them
+by hand — edit `scripts/build_en_kb.py`, `scripts/build_en_map.py` or
+`scripts/i18n_en.py` and rebuild.
+
+Three rules apply to every English change:
+
+1. **Mirror the Chinese table.** Row count, ID sequence and theme distribution
+   must match `data/养生知识表.csv` exactly. `validate_en_kb.py` compares them.
+2. **No disease names, no therapeutic claims.** English health claims are read
+   strictly (FTC, and the FDA's treatment of many herbs). The English
+   validator has its own red-line word lists, with negation-context handling
+   so that a prohibition is not mistaken for a claim.
+3. **No Chinese prose in the output.** The generators refuse to write a file
+   that still contains Chinese characters (except real file names a reader has
+   to type). If a translation is missing, add it to `scripts/i18n_en.py`.
+
+Run the English checks before pushing:
+
+```bash
+python scripts/build_en_kb.py
+python scripts/validate_en_kb.py
+python scripts/build_en_map.py
+python scripts/validate_en_map.py
+```
+
+If you add a role slot, a roadmap phase or a risk, add the English copy to
+`scripts/i18n_en.py` in the same commit — the English build fails loudly
+rather than silently falling back to Chinese.

@@ -1,0 +1,40 @@
+name: Adaptation request
+description: "You want to repoint the model at a different niche, table format or output format."
+title: "[adapt] "
+labels: ["adaptation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The architecture is generic — wellness is just the first subject that ran
+        end to end. If you are repointing it, this is the place to say so, so
+        the change can be made generic instead of niche-specific.
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Which layer does this touch?
+      options:
+        - Data — my own SSOT table, different fields
+        - Roles — different role slots or theme ownership
+        - Execution — different tools, different scripts
+        - Compliance — a different industry's red lines
+        - Output — a different format or a new artifact
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What you are trying to do
+      description: The concrete thing you want the model to support.
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraint
+    attributes:
+      label: Anything that would break
+      description: For example, if your material is not countable, or your niche has no public standard to cite.
+    validations:
+      required: false

@@ -1,0 +1,36 @@
+name: Claim the operating model template kit
+description: Get the templates I actually use (role-slot design sheet, process-chain sheet, 90-day roadmap, monetization gate sheet).
+title: "Claim the operating model template kit"
+labels: ["operating-kit"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two fields, and that is the whole form.
+
+        **Why the second question matters:** if fifty people describe content
+        monetisation and five describe client work, I learn from that which of
+        the paid layers is actually wanted — instead of running a survey I
+        would never send. It also tells me what to send you.
+
+        If you are not sure the templates apply to you yet, the repository is
+        fully open source — clone it and run it first. This form is only for
+        the kit.
+
+  - type: input
+    id: email
+    attributes:
+      label: Email
+      description: The only way to deliver the kit. Used for the kit and the weekly build-in-public note — nothing else, and you can ask to be removed at any time.
+      placeholder: you@example.com
+    validations:
+      required: true
+
+  - type: textarea
+    id: revenue
+    attributes:
+      label: How do you make money right now?
+      description: A sentence or two is enough. "Newsletter sponsorships" / "Freelance design work" / "Nothing yet — looking for the first channel" are all useful answers.
+      placeholder: Right now I…
+    validations:
+      required: true

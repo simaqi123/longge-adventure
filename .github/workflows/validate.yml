@@ -1,4 +1,4 @@
-name: 校验管线
+name: validate pipeline
 
 on:
   push:
@@ -16,31 +16,46 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: 校验 SSOT 知识表
+      # ---------- Chinese edition ----------
+      - name: Validate SSOT table
         run: python scripts/validate_ssot.py data/养生知识表.csv
 
-      - name: 生成生存地图
+      - name: Build survival map
         run: python scripts/build_survival_map.py
 
-      - name: 生成体质自测
+      - name: Build constitution self-assessment
         run: python scripts/build_constitution_test.py
 
-      - name: 校验生存地图结构与数字一致
+      - name: Validate survival map structure and figures
         run: python scripts/validate_survival_map.py
 
-      - name: 校验深度经营模型
+      - name: Validate operating model
         run: python scripts/validate_deep_model.py
 
-      - name: 校验体质自测合规
+      - name: Validate constitution page compliance
         run: python scripts/validate_constitution_html.py
 
-      - name: 注入测试（期望 44/44 拦截）
+      - name: Injection tests (expect 44/44 blocked)
         run: python scripts/test_survival_map_injection.py
 
-      - name: 校验生成物未被篡改
+      # ---------- English edition ----------
+      - name: Build English knowledge table
+        run: python scripts/build_en_kb.py
+
+      - name: Validate English knowledge table and its red lines
+        run: python scripts/validate_en_kb.py
+
+      - name: Build English survival map
+        run: python scripts/build_en_map.py
+
+      - name: Validate English survival map
+        run: python scripts/validate_en_map.py
+
+      # ---------- artifacts ----------
+      - name: Check generated files were not tampered with
         run: |
-          git diff --exit-code web/ || {
-            echo "::error::web/ 下的生成物与重新生成的结果不一致，请提交最新构建产物"
+          git diff --exit-code web/ data/wellness_kb.en.csv || {
+            echo "::error::generated files differ from a fresh rebuild — commit the latest build output"
             exit 1
           }
 
@@ -51,5 +66,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
-      - name: 公开版泄漏扫描
+      - name: Public-release leak scan
         run: python scripts/leak_scan.py

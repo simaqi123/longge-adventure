@@ -16,7 +16,8 @@
 | `scripts/` | 生成器 + 校验器 + 注入测试 | 工程交付官 |
 | `web/` | 生成物。生存地图、体质自测 | **只由脚本写入** |
 | `output/` | 生成物。早报 | **只由脚本写入** |
-| `docs/` | 方法论、口径声明、合规手册、契约层 | 人工维护 |
+| `docs/` | 方法论、口径声明、合规手册、契约层（中文） | 人工维护 |
+| `docs/en/` | 上述文档的英文版 + 引流工具包 | 人工维护 |
 
 ## 三条不可破的不变量
 
@@ -37,6 +38,26 @@ python scripts/build_constitution_test.py
 python scripts/validate_survival_map.py
 python scripts/validate_deep_model.py
 ```
+
+**改数据层后，英文版必须同步重建**（英文表与英文页面都是从中文表派生的）：
+
+```bash
+python scripts/build_en_kb.py        # → data/wellness_kb.en.csv
+python scripts/build_en_map.py       # → web/solo-wellness-map.en.html
+python scripts/validate_en_kb.py     # 英文红线 + 与中文表镜像校验
+python scripts/validate_en_map.py    # 英文页不变量 + 数字一致性
+```
+
+英文版有两条额外约束：
+
+1. **英文表与中文表必须镜像**——行数、ID 序列、主题分布完全一致，
+   `validate_en_kb.py` 会比对。改动中文表而不重建英文表，CI 会挂。
+2. **英文红线独立于中文红线**——`validate_en_kb.py` 用英文疗效词表与疾病名词表，
+   并按句处理否定语境（"must not be called a diagnosis" 是禁止，不是宣称）。
+
+英文表的**生成策略**见 `scripts/build_en_kb.py` 顶部注释：
+91 条完整翻译（节气/经典/边界/自省/体质/项目），114 条走结构化模板。
+不要用机器翻译直接灌满 205 条——英文健康宣称的监管比中文更严。
 
 **改 `scripts/survival_map_data.py`（位次/角色）**
 
@@ -61,9 +82,14 @@ python scripts/validate_survival_map.py
 python scripts/validate_deep_model.py
 python scripts/validate_constitution_html.py
 python scripts/test_survival_map_injection.py
+python scripts/build_en_kb.py
+python scripts/validate_en_kb.py
+python scripts/build_en_map.py
+python scripts/validate_en_map.py
+python scripts/leak_scan.py
 ```
 
-最后一条是**注入测试**：故意破坏页面确认校验器拦得住（期望 44/44）。
+倒数第二条是**注入测试**：故意破坏页面确认校验器拦得住（期望 44/44）。
 校验器自己说"通过"没有意义，能抓住被破坏的页面才有意义。
 
 ## 硬性禁令
@@ -75,6 +101,9 @@ python scripts/test_survival_map_injection.py
 - ❌ 在科普页面加联系方式、链接、二维码、扫码引导
 - ❌ 引入第三方依赖（保持 Python 标准库）
 - ❌ 硬编码真实机构名、价格、个人信息到任何入库文件
+- ❌ 在任何表里留下疾病名（含「出处」列）——读者会把它读成适应症
+- ❌ 在英文表里写疗效宣称、疾病名、特定人群限定、问诊诱导
+- ❌ 手改 `data/wellness_kb.en.csv`——它是生成物，改 `scripts/build_en_kb.py`
 
 最后一条的含义：**脱敏规则必须用通用正则表达**。参考 `scripts/sanitize_for_public.py`——
 它自己不含任何真实敏感字面量，靠正则作用于任意来源表。

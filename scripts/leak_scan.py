@@ -32,6 +32,14 @@ FORBIDDEN = {
         (r"会员卡", "经营词"),
         (r"价目表", "经营词"),
         (r"[A-Za-z]:[/\\]Users", "本地路径"),
+        # 疾病名一旦出现在出处列，读者会读成适应症
+        (r"癌|白血病|中风|糖尿病|高血压|肿瘤|结石|甲亢|甲减|甲状腺|动脉粥样|"
+         r"心梗|脑梗|肝硬化|肾衰|尿毒|哮喘|肺炎|溃疡|胆囊炎|前列腺|乳腺增生|"
+         r"高粘血|尿酸|心律|房颤|肾炎", "疾病名"),
+        # 英文疾病名（英文表专用）
+        (r"\b(cancer|tumou?r|leukaemia|leukemia|stroke|diabet\w+|hypertension|"
+         r"thyroid|carcinoma|atherosclerosis|arrhythmia|asthma|bronchitis|"
+         r"pneumonia|ulcer|hepatitis|cirrhosis|cholangitis)\b", "疾病名(英文)"),
     ],
     "web": [
         (r"[\u4e00-\u9fa5]{2,6}(?:中医馆|养生馆|医馆)", "机构名"),
@@ -40,6 +48,14 @@ FORBIDDEN = {
         (r"会员卡", "经营词"),
         (r"价目表", "经营词"),
         (r"[A-Za-z]:[/\\]Users", "本地路径"),
+        (r"癌|白血病|中风|糖尿病|高血压|肿瘤|结石|甲亢|甲减|甲状腺|动脉粥样|"
+         r"心梗|脑梗|肝硬化|肾衰|尿毒|哮喘|肺炎|溃疡|胆囊炎|前列腺|乳腺增生|"
+         r"高粘血|尿酸|心律|房颤|肾炎", "疾病名"),
+        # 注意：web/ 下是 HTML+SVG，"stroke" 是 SVG 属性名，
+        # 与疾病名"中风"同形，会误报，故此处不含 stroke。
+        (r"\b(cancer|tumou?r|leukaemia|leukemia|diabet\w+|hypertension|"
+         r"thyroid|carcinoma|atherosclerosis|arrhythmia|asthma|bronchitis|"
+         r"pneumonia|ulcer|hepatitis|cirrhosis|cholangitis)\b", "疾病名(英文)"),
     ],
     "examples": [
         (r"[\u4e00-\u9fa5]{2,6}(?:中医馆|养生馆|医馆)", "机构名"),
@@ -52,6 +68,8 @@ FORBIDDEN = {
         (r"[A-Za-z]:[/\\]Users", "本地路径"),
         (r"AppData", "本地路径"),
     ],
+    # 英文文档目录：同样不允许本地路径与个人信息
+    "docs/en": [],
     "docs": [
         (r"[A-Za-z]:[/\\]Users", "本地路径"),
         (r"AppData", "本地路径"),
@@ -69,7 +87,13 @@ TEXT_EXT = {".py", ".md", ".csv", ".json", ".js", ".yml", ".yaml", ".txt", ".htm
 
 # 自指豁免：这两个文件**必然**包含用于检测的字面量本身。
 # 不豁免的话扫描器会永远检出自己。
-SELF_EXEMPT = {"scripts/leak_scan.py", "scripts/sanitize_for_public.py"}
+SELF_EXEMPT = {
+    "scripts/leak_scan.py",
+    "scripts/sanitize_for_public.py",
+    # 这两个必然包含用于检测的英文红线字面量
+    "scripts/validate_en_kb.py",
+    "scripts/validate_en_map.py",
+}
 
 
 def iter_files():

@@ -1,0 +1,43 @@
+name: Bug report
+description: Something in the pipeline behaves differently from what the docs say.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every number in this repository is supposed to be reproducible. If a
+        validator disagrees with the page, that is a bug in the repository, not
+        a mistake in your reading — please report it.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, and what you got.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The exact commands, and the output you got.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expectation
+    attributes:
+      label: What you expected instead
+    validations:
+      required: false
