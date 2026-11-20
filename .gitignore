@@ -27,3 +27,8 @@ SSOT/
 *-私有*
 .env
 *.key
+
+# 子代理临时校验脚本
+.check_en_docs.py
+.verify_en_docs.py
+*.tmp
