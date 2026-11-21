@@ -1,0 +1,77 @@
+name: Deploy demo to GitHub Pages
+
+# Why this exists:
+# README's top line says "Live demo" and links web/solo-wellness-map.en.html.
+# On github.com that resolves to a 126 KB HTML *source* page, not a rendered page,
+# and no Pages site existed at all (checked: both the Pages API and the
+# simaqi123.github.io URL returned 404). A stranger clicks "Live demo", sees code,
+# and leaves. That is the most expensive kind of trust loss.
+#
+# This publishes the already-built artifacts in web/ as real pages.
+# One-time setup required by the repo owner (cannot be done from a workflow):
+#   Settings -> Pages -> Build and deployment -> Source = "GitHub Actions"
+# Until that is set, the deploy job will fail; that is expected, not a bug.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # English map as the root page: an English reader's first click must land
+          # on something they can read.
+          cp web/solo-wellness-map.en.html _site/index.html
+          cp web/solo-wellness-map.en.html _site/map-en.html
+          cp "web/养生一人公司生存地图.html" _site/map-zh.html
+          cp "web/体质自测.html" _site/constitution-test-zh.html
+          ls -lh _site
+
+      - name: Index note
+        run: |
+          cat > _site/README.txt <<'TXT'
+          Longge Adventure - shipped artifacts
+
+            index.html / map-en.html    English survival map (the demo)
+            map-zh.html                 Chinese survival map
+            constitution-test-zh.html   Chinese constitution self-assessment
+
+          Every file is a single self-contained HTML with zero external requests.
+          Source: https://github.com/simaqi123/longge-adventure
+          TXT
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,7 +8,7 @@
 >
 > **Build in public.** MIT licensed, zero dependencies.
 
-[中文版 README](README.zh-CN.md) · [Docs](docs/en/) · [Live demo](web/solo-wellness-map.en.html)
+[中文版 README](README.zh-CN.md) · [Docs](docs/en/) · [Live demo](https://simaqi123.github.io/longge-adventure/) · [Artifact source](web/solo-wellness-map.en.html)
 
 **Long Ge (张伟 / "Longge")** · [@simaqi123](https://github.com/simaqi123) · MIT
 
