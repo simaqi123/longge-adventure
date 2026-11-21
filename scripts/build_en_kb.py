@@ -808,7 +808,7 @@ def main():
         sys.exit(1)
 
     with open(OUT_CSV, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=EN_FIELDS)
+        writer = csv.DictWriter(f, fieldnames=EN_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
